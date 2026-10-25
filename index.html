@@ -626,10 +626,14 @@ function hideSongBar(){ songBar.classList.remove("show"); }
 song.addEventListener("play", ()=>{ songBtn.textContent = "⚡难忘今宵⚡l l"; showSongBar(); });
 song.addEventListener("pause", ()=>{ songBtn.textContent = "⚡难忘今宵⚡▶"; hideSongBar(); });
 song.addEventListener("loadedmetadata", ()=>{
-  if(song.duration){ songRange.max = Math.max(0, song.duration - OFF); songDur.textContent = fmtSong(song.duration - OFF); }
+  if(song.duration && isFinite(song.duration)){
+    songRange.max = Math.max(0, song.duration - OFF);
+    songDur.textContent = fmtSong(song.duration - OFF);
+  }
 });
+let songDragging = false;
 song.addEventListener("timeupdate", ()=>{
-  if(song.paused) return;
+  if(song.paused || songDragging) return;
   const t = Math.max(0, song.currentTime - OFF);
   songRange.value = t;
   songTime.textContent = fmtSong(t);
@@ -641,7 +645,7 @@ songRange.addEventListener("input", ()=>{
 });
 function updateTip(){
   const val = parseFloat(songRange.value);
-  const max = parseFloat(songRange.max);
+  const max = parseFloat(songRange.max) || 0;
   const rect = songRange.getBoundingClientRect();
   const wrapRect = songRangeWrap.getBoundingClientRect();
   const tw = 16;
@@ -649,10 +653,14 @@ function updateTip(){
   songTip.textContent = fmtSong(val);
   songTip.style.left = (rect.left - wrapRect.left + tw / 2 + pct * (rect.width - tw)) + "px";
 }
-songRange.addEventListener("pointerdown", ()=>{ songTip.classList.add("show"); updateTip(); });
+songRange.addEventListener("pointerdown", ()=>{ songDragging = true; songTip.classList.add("show"); updateTip(); });
 songRange.addEventListener("pointermove", ()=>{ if(songTip.classList.contains("show")) updateTip(); });
-songRange.addEventListener("pointerup", ()=>{ songTip.classList.remove("show"); });
+songRange.addEventListener("pointerup", ()=>{ songDragging = false; songTip.classList.remove("show"); syncSongFromRange(); });
 songRange.addEventListener("mouseleave", ()=>{ songTip.classList.remove("show"); });
+function syncSongFromRange(){
+  song.currentTime = parseFloat(songRange.value) + OFF;
+  songTime.textContent = fmtSong(songRange.value);
+}
 function toggleSong(){
   if(song.paused){ song.currentTime = 2; song.play(); } else { song.pause(); song.currentTime = 0; }
 }
