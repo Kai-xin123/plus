@@ -7,9 +7,18 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,sans-serif}
-body{background:#f4f7fa;color:#222;padding:20px;padding-bottom:40px}
+:root{
+  --bg:#f4f7fa;--text:#222;--card-bg:#fff;--card-border:#ddd;--shadow:#00000015;
+  --rank-border:#eee;--modal-bg:#fff;--input-bg:#fff;--input-border:#ddd;--score:#2563eb;--rank-num-bg:#eef2ff;
+}
+body.dark{
+  --bg:#0f172a;--text:#e2e8f0;--card-bg:#1e293b;--card-border:#334155;--shadow:#00000066;
+  --rank-border:#334155;--modal-bg:#1e293b;--input-bg:#0f172a;--input-border:#475569;--score:#60a5fa;--rank-num-bg:#334155;
+}
+body{background:var(--bg);color:var(--text);padding:20px;padding-bottom:40px}
 .homePage{display:block}
 .cardPage{display:none}
+#themeBtn{background:#64748b;color:white;font-size:18px;line-height:1;padding:8px 12px}
 
 .container{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1400px;margin:0 auto}
 header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
@@ -20,7 +29,7 @@ h1{font-size:24px}
 #goCardPageBtn{background:#db2777;color:white;}
 #homeworkBtn{background:#0ea5e9;color:white;}
 #songBtn{background:#dc2626;color:white;font-weight:700;}
-.homeworkText{width:100%;min-height:160px;padding:10px;border:1px solid #ddd;border-radius:6px;resize:vertical;font-family:inherit;font-size:15px;line-height:1.6}
+.homeworkText{width:100%;min-height:160px;padding:10px;border:1px solid var(--card-border);border-radius:6px;resize:vertical;font-family:inherit;font-size:15px;line-height:1.6;background:var(--input-bg);color:var(--text)}
 .codeToggleBtn{background:#334155;color:white}
 .hwToggleBtn{width:100%;padding:10px;border:none;border-radius:8px;cursor:pointer;font-size:16px;color:white;font-weight:600}
 .hwToggleBtn.danger{background:#dc2626}
@@ -33,25 +42,25 @@ h1{font-size:24px}
 .backHomeBtn{background:#6b7280;color:white;}
 
 .nameList{display:flex;flex-direction:column;gap:6px}
-.nameCard{padding:15px 14px;border-radius:10px;background:#fff;box-shadow:0 2px 6px #00000015;transition:transform 0.25s ease, box-shadow 0.25s ease, padding 0.25s ease;user-select:none;display:flex;align-items:center;justify-content:space-between;position:relative}
+.nameCard{padding:15px 14px;border-radius:10px;background:var(--card-bg);box-shadow:0 2px 6px var(--shadow);transition:transform 0.25s ease, box-shadow 0.25s ease, padding 0.25s ease;user-select:none;display:flex;align-items:center;justify-content:space-between;position:relative}
 .nameCard:hover{transform:scaleX(1.04) scaleY(1.04);box-shadow:0 6px 16px #00000028;padding:15px 16px}
 .nameCard .nameText{font-size:12px;font-weight:500}
-.nameCard .scoreText{color:#2563eb;font-weight:bold;font-size:13px}
+.nameCard .scoreText{color:var(--score);font-weight:bold;font-size:13px}
 .nameCard .scoreBtns{display:flex;align-items:center}
 .nameCard .subBtn{display:none}
 .nameCard:hover .subBtn{display:inline-block}
 .nameCard .scoreBtns button{padding:4px 12px;border:none;border-radius:5px;cursor:pointer;font-size:12px}
 .btnSub{background:#ef4444;color:white}
 
-.rankBox{background:#fff;border-radius:12px;padding:16px;box-shadow:0 2px 8px #00000018;height:fit-content;overflow:hidden}
+.rankBox{background:var(--card-bg);border-radius:12px;padding:16px;box-shadow:0 2px 8px var(--shadow);height:fit-content;overflow:hidden}
 .rankBox h2{margin-bottom:14px;font-size:20px}
 .rankListWrap{position:relative}
-.rankItem{display:flex;justify-content:space-between;padding:10px 8px;border-bottom:1px solid #eee;align-items:center;
+.rankItem{display:flex;justify-content:space-between;padding:10px 8px;border-bottom:1px solid var(--rank-border);align-items:center;
   transition: transform 0.5s ease, background-color 0.5s ease;
 }
 .rankItem.up{background:#dcfce7}
 .rankItem.down{background:#fee2e2}
-.rankItem .rankNum{width:28px;height:28px;border-radius:50%;background:#eef2ff;color:#2563eb;display:grid;place-items:center;font-weight:bold;margin-right:8px}
+.rankItem .rankNum{width:28px;height:28px;border-radius:50%;background:var(--rank-num-bg);color:var(--score);display:grid;place-items:center;font-weight:bold;margin-right:8px}
 .rankItem .rankName{flex:1}
 .rankItem .rankScore{font-weight:bold;border-radius:4px;padding:1px 4px}
 .rankItem .rankScore.flash{animation:flashYellow 0.9s ease 1}
@@ -63,11 +72,11 @@ h1{font-size:24px}
 }
 
 .modalMask{position:fixed;inset:0;background:rgba(0,0,0,0.25);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;z-index:99}
-.modal{width:520px;background:#fff;border-radius:12px;padding:20px}
+.modal{width:520px;background:var(--modal-bg);border-radius:12px;padding:20px}
 .modal h3{margin-bottom:16px}
 .modal .row{margin-bottom:14px}
 .modal label{display:block;margin-bottom:6px;font-weight:500;display:flex;align-items:center;gap:6px}
-.modal input{width:100%;padding:8px;border:1px solid #ddd;border-radius:6px}
+.modal input{width:100%;padding:8px;border:1px solid var(--input-border);border-radius:6px;background:var(--input-bg);color:var(--text)}
 .colorRow{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center;margin-top:4px}
 .colorRow input[type=color]{width:100%;height:42px;padding:4px;border:1px solid #d1d5db;border-radius:6px;cursor:pointer;background:#fff;box-shadow:none}
 .colorRow input[type=color]::-webkit-color-swatch-wrapper{padding:0}
@@ -98,7 +107,7 @@ h1{font-size:24px}
 .flipCard-inner{width:100%;height:100%;position:relative}
 .flipCard-front,.flipCard-back{position:absolute;width:100%;height:100%;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:6px;text-align:center;overflow:hidden}
 .flipCard-front{color:white;font-size:24px;font-weight:bold;z-index:2}
-.flipCard-back{background:#fff;color:#111;border:2px solid;font-size:14px;z-index:1}
+.flipCard-back{background:var(--card-bg);color:var(--text);border:2px solid;font-size:14px;z-index:1}
 .flipCard.flipped .flipCard-front{z-index:1}
 .flipCard.flipped .flipCard-back{z-index:2}
 .flipCard .delCardBtn{position:absolute;top:-6px;right:-6px;width:22px;height:22px;background:#ef4444;color:#fff;border-radius:50%;border:none;cursor:pointer;font-weight:bold;z-index:10;font-size:14px;line-height:1}
@@ -109,7 +118,7 @@ h1{font-size:24px}
 .bigFlipCard-inner{width:100%;height:100%;position:relative}
 .bigFlipCard-front,.bigFlipCard-back{position:absolute;width:100%;height:100%;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:8px;text-align:center;overflow:hidden}
 .bigFlipCard-front{color:white;font-size:28px;font-weight:bold;z-index:2}
-.bigFlipCard-back{background:#fff;color:#111;border:2px solid;font-size:15px;z-index:1}
+.bigFlipCard-back{background:var(--card-bg);color:var(--text);border:2px solid;font-size:15px;z-index:1}
 .bigFlipCard.flipped .bigFlipCard-front{z-index:1}
 .bigFlipCard.flipped .bigFlipCard-back{z-index:2}
 
@@ -122,6 +131,7 @@ h1{font-size:24px}
 <header>
 <h1>积分系统</h1>
 <div class="header-buttons">
+<button id="themeBtn" onclick="toggleTheme()">🌙</button>
 <button id="openSetting">⚙ 设置</button>
 <button id="pickBtn">🎲 抽选人员</button>
 <button id="goCardPageBtn">🎴 抽卡</button>
@@ -569,6 +579,18 @@ function toggleSong(){
   if(song.paused){ song.play(); } else { song.pause(); song.currentTime = 0; }
 }
 
+// ===== 亮暗主题 =====
+const THEME_KEY = "hwTheme";
+function applyTheme(dark){
+  document.body.classList.toggle("dark", dark);
+  document.getElementById("themeBtn").textContent = dark ? "☀️" : "🌙";
+}
+function toggleTheme(){
+  const dark = !document.body.classList.contains("dark");
+  applyTheme(dark);
+  localStorage.setItem(THEME_KEY, dark ? "dark" : "light");
+}
+
 // ===== 发放作业 =====
 function toggleCodeArea(){
   const area = document.getElementById("codeArea");
@@ -784,6 +806,7 @@ document.getElementById("pickScreen").onclick = function(){
 document.getElementById("goCardPageBtn").onclick = goCardPage;
 
 loadData();
+applyTheme(localStorage.getItem(THEME_KEY) === "dark");
 </script>
 </body>
 </html>
