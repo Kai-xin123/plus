@@ -597,6 +597,7 @@ document.getElementById("cardManageBtn").onclick = ()=>{
   document.getElementById("cardManageModalMask").style.display="flex";
 }
 function closeCardManageModal(){
+  shuffleCards();
   document.getElementById("cardManageModalMask").style.display="none";
 }
 document.getElementById("cardManageModalMask").onclick = function(e){
