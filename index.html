@@ -685,12 +685,15 @@ function renderCardPageList(){
 
 function shuffleCards(){
   if(cardList.length < 2) return;
-  for(let i = cardList.length - 1; i > 0; i--){
+  const backs = cardList.map(c => c.back);
+  for(let i = backs.length - 1; i > 0; i--){
     const j = Math.floor(Math.random() * (i + 1));
-    [cardList[i], cardList[j]] = [cardList[j], cardList[i]];
+    [backs[i], backs[j]] = [backs[j], backs[i]];
   }
+  cardList.forEach((c, i) => { c.back = backs[i]; });
   saveCardData();
   renderCardPageList();
+  renderCardManageList();
 }
 
 function flipCardEffect(cardEl, card, doneCallback){
