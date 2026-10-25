@@ -148,7 +148,7 @@ h1{font-size:24px}
 <h1>抽卡页面</h1>
 <div class="header-buttons">
 <button id="cardColorBtn" onclick="openCardColor()">🎨 颜色</button>
-<button id="shuffleBtn" onclick="shuffleCards()">🔀 打乱</button>
+<button id="shuffleBtn" onclick="shuffleCards(true)">🔀 打乱</button>
 <button id="cardManageBtn">📋 卡片管理</button>
 </div>
 </header>
@@ -727,8 +727,8 @@ function renderCardPageList(){
   })
 }
 
-function shuffleCards(){
-  if(cardList.length < 2) return;
+function shuffleCards(showTip){
+  if(cardList.length < 2){ if(showTip) alert("卡片不足，无法打乱"); return; }
   const backs = cardList.map(c => c.back);
   for(let i = backs.length - 1; i > 0; i--){
     const j = Math.floor(Math.random() * (i + 1));
@@ -738,6 +738,7 @@ function shuffleCards(){
   saveCardData();
   renderCardPageList();
   renderCardManageList();
+  if(showTip) alert("已打乱！");
 }
 
 function flipCardEffect(cardEl, card, doneCallback){
