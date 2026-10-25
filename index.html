@@ -573,9 +573,6 @@ function closeHomeworkModal(){
   if(!hwClosed && !hwInput().value.trim()) setHwState(true);
   document.getElementById("homeworkModalMask").style.display="none";
 }
-document.getElementById("homeworkModalMask").onclick = function(e){
-  if(e.target === this) closeHomeworkModal();
-};
 let homeworkTimer = null;
 function autoSaveHomework(){
   clearTimeout(homeworkTimer);
