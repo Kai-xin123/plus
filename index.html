@@ -22,6 +22,10 @@ h1{font-size:24px}
 #songBtn{background:#dc2626;color:white;font-weight:700;}
 .homeworkText{width:100%;min-height:160px;padding:10px;border:1px solid #ddd;border-radius:6px;resize:vertical;font-family:inherit;font-size:15px;line-height:1.6}
 .codeToggleBtn{background:#334155;color:white}
+.hwToggleBtn{width:100%;padding:10px;border:none;border-radius:8px;cursor:pointer;font-size:16px;color:white;font-weight:600}
+.hwToggleBtn.danger{background:#dc2626}
+.hwToggleBtn.open{background:#16a34a}
+.homeworkText:disabled{background:#e5e7eb;color:#9ca3af;cursor:not-allowed}
 .codeInput{font-family:Consolas,Monaco,monospace;font-size:14px;min-height:140px;white-space:pre;overflow:auto;line-height:1.5}
 #cardManageBtn{background:#db2777;color:white;}
 .backHomeBtn{background:#6b7280;color:white;}
@@ -200,8 +204,8 @@ h1{font-size:24px}
   <textarea id="homeworkCodeInput" class="homeworkText codeInput" placeholder="粘贴/输入要发放的代码" oninput="autoSaveHomework()"></textarea>
 </div>
 </div>
-<div class="halfRow">
-<button class="halfBtn btnDanger" onclick="closeHomework()">关闭作业（清空）</button>
+<div class="row">
+<button class="fullBtn hwToggleBtn danger" id="toggleHomeworkBtn" onclick="toggleHomeworkState()">关闭作业</button>
 </div>
 <div class="modalFooter">
 <button class="btnGray" onclick="closeHomeworkModal()">关闭</button>
@@ -521,18 +525,52 @@ function toggleCodeArea(){
   const area = document.getElementById("codeArea");
   area.style.display = area.style.display === "none" ? "block" : "none";
 }
+let hwClosed = false;
+function hwInput(){ return document.getElementById("homeworkInput"); }
+function hwCode(){ return document.getElementById("homeworkCodeInput"); }
+function hwBtn(){ return document.getElementById("toggleHomeworkBtn"); }
+
+function setHwState(closed){
+  hwClosed = closed;
+  hwInput().disabled = closed;
+  hwCode().disabled = closed;
+  const b = hwBtn();
+  if(closed){
+    b.textContent = "发放作业";
+    b.classList.remove("danger"); b.classList.add("open");
+  }else{
+    b.textContent = "关闭作业";
+    b.classList.remove("open"); b.classList.add("danger");
+  }
+}
+
 document.getElementById("homeworkBtn").onclick = async ()=>{
   document.getElementById("homeworkModalMask").style.display="flex";
   try{
     const r = await fetch("/api/homework");
     if(r.ok){
       const d = await r.json();
-      document.getElementById("homeworkInput").value = d.text || "";
-      document.getElementById("homeworkCodeInput").value = d.code || "";
+      hwInput().value = d.text || "";
+      hwCode().value = d.code || "";
+      setHwState(!(d.text && d.text.trim()));
     }
   }catch(e){}
 };
+
+function toggleHomeworkState(){
+  if(!hwClosed){
+    if(!confirm("确定关闭作业？学生端将显示“暂无作业”")) return;
+    hwInput().value = "";
+    hwCode().value = "";
+    postHomeworkRaw("", "");
+    setHwState(true);
+  }else{
+    setHwState(false);
+  }
+}
+
 function closeHomeworkModal(){
+  if(!hwClosed && !hwInput().value.trim()) setHwState(true);
   document.getElementById("homeworkModalMask").style.display="none";
 }
 document.getElementById("homeworkModalMask").onclick = function(e){
@@ -543,34 +581,17 @@ function autoSaveHomework(){
   clearTimeout(homeworkTimer);
   homeworkTimer = setTimeout(postHomework, 400);
 }
-async function postHomework(){
-  const text = document.getElementById("homeworkInput").value;
-  const code = document.getElementById("homeworkCodeInput").value;
-  try{
-    const r = await fetch("/api/homework",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({text, code})
-    });
-    if(!r.ok){
-      let msg = r.status;
-      try{ const e = await r.json(); if(e.error) msg = e.error; }catch(_){}
-      console.warn("作业保存失败：" + msg);
-    }
-  }catch(e){ console.warn("作业保存失败"); }
-}
-async function closeHomework(){
-  if(!confirm("确定关闭作业？学生端将显示“暂无作业”")) return;
-  document.getElementById("homeworkInput").value = "";
-  document.getElementById("homeworkCodeInput").value = "";
+async function postHomeworkRaw(text, code){
   try{
     await fetch("/api/homework",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({text:"", code:""})
+      body: JSON.stringify({text, code})
     });
-    closeHomeworkModal();
-  }catch(e){ alert("操作失败：无法连接接口"); }
+  }catch(e){ console.warn("作业保存失败"); }
+}
+async function postHomework(){
+  await postHomeworkRaw(hwInput().value, hwCode().value);
 }
 
 document.getElementById("cardManageBtn").onclick = ()=>{
