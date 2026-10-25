@@ -28,6 +28,7 @@ h1{font-size:24px}
 .homeworkText:disabled{background:#e5e7eb;color:#9ca3af;cursor:not-allowed}
 .codeInput{font-family:Consolas,Monaco,monospace;font-size:14px;min-height:140px;white-space:pre;overflow:auto;line-height:1.5}
 #cardManageBtn{background:#db2777;color:white;}
+#shuffleBtn{background:#7c3aed;color:white;}
 .backHomeBtn{background:#6b7280;color:white;}
 
 .nameList{display:flex;flex-direction:column;gap:6px}
@@ -145,6 +146,7 @@ h1{font-size:24px}
 </div>
 <h1>抽卡页面</h1>
 <div class="header-buttons">
+<button id="shuffleBtn" onclick="shuffleCards()">🔀 打乱</button>
 <button id="cardManageBtn">📋 卡片管理</button>
 </div>
 </header>
@@ -679,6 +681,16 @@ function renderCardPageList(){
     `;
     wrap.appendChild(div);
   })
+}
+
+function shuffleCards(){
+  if(cardList.length < 2) return;
+  for(let i = cardList.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [cardList[i], cardList[j]] = [cardList[j], cardList[i]];
+  }
+  saveCardData();
+  renderCardPageList();
 }
 
 function flipCardEffect(cardEl, card, doneCallback){
