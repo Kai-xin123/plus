@@ -19,7 +19,6 @@ body{background:var(--bg);color:var(--text);padding:20px;padding-bottom:40px;tra
 .homePage{display:block}
 .cardPage{display:none}
 #themeBtn{background:#64748b;color:white;font-size:18px;line-height:1;padding:8px 12px}
-#studentBtn{background:#0891b2;color:white;}
 
 .container{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1400px;margin:0 auto}
 header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
@@ -35,6 +34,7 @@ h1{font-size:24px}
 .hwToggleBtn{width:100%;padding:10px;border:none;border-radius:8px;cursor:pointer;font-size:16px;color:white;font-weight:600}
 .hwToggleBtn.danger{background:#dc2626}
 .hwToggleBtn.open{background:#16a34a}
+.hwToggleBtn.studentLink{background:#0891b2}
 .homeworkText:disabled{background:#e5e7eb;color:#9ca3af;cursor:not-allowed}
 .codeInput{font-family:Consolas,Monaco,monospace;font-size:14px;min-height:140px;white-space:pre;overflow:auto;line-height:1.5}
 #cardManageBtn{background:#db2777;color:white;}
@@ -133,7 +133,6 @@ h1{font-size:24px}
 <h1>积分系统</h1>
 <div class="header-buttons">
 <button id="themeBtn" onclick="toggleTheme()">🌙</button>
-<button id="studentBtn" onclick="window.open('https://plus-score.pages.dev/%E5%AD%A6%E7%94%9F%E7%AB%AF/','_blank')">📖 作业网站</button>
 <button id="openSetting">⚙ 设置</button>
 <button id="pickBtn">🎲 抽选人员</button>
 <button id="goCardPageBtn">🎴 抽卡</button>
@@ -222,6 +221,9 @@ h1{font-size:24px}
 </div>
 <div class="row">
 <button class="fullBtn hwToggleBtn danger" id="toggleHomeworkBtn" onclick="toggleHomeworkState()">关闭作业</button>
+</div>
+<div class="row">
+<button class="fullBtn hwToggleBtn studentLink" onclick="window.open('https://plus-score.pages.dev/%E5%AD%A6%E7%94%9F%E7%AB%AF/','_blank')">作业网站</button>
 </div>
 <div class="modalFooter">
 <button class="btnGray" onclick="closeHomeworkModal()">关闭</button>
