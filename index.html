@@ -580,7 +580,7 @@ const songBtn = document.getElementById("songBtn");
 song.addEventListener("play", ()=>{ songBtn.textContent = "⚡难忘今宵⚡l l"; });
 song.addEventListener("pause", ()=>{ songBtn.textContent = "⚡难忘今宵⚡▶"; });
 function toggleSong(){
-  if(song.paused){ song.play(); } else { song.pause(); song.currentTime = 0; }
+  if(song.paused){ song.currentTime = 2; song.play(); } else { song.pause(); song.currentTime = 0; }
 }
 
 // ===== 亮暗主题 =====
