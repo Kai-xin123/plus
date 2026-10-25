@@ -605,6 +605,7 @@ const songRange = document.getElementById("songRange");
 const songTime = document.getElementById("songTime");
 const songDur = document.getElementById("songDur");
 const songTip = document.getElementById("songTip");
+const songRangeWrap = document.getElementById("songRangeWrap");
 const OFF = 2; // 从2秒开始，显示归零
 function fmtSong(s){
   s = Math.max(0, s);
@@ -642,10 +643,11 @@ function updateTip(){
   const val = parseFloat(songRange.value);
   const max = parseFloat(songRange.max);
   const rect = songRange.getBoundingClientRect();
-  const barRect = songBar.getBoundingClientRect();
+  const wrapRect = songRangeWrap.getBoundingClientRect();
+  const tw = 16;
   const pct = max > 0 ? val / max : 0;
   songTip.textContent = fmtSong(val);
-  songTip.style.left = (rect.left - barRect.left + pct * rect.width) + "px";
+  songTip.style.left = (rect.left - wrapRect.left + tw / 2 + pct * (rect.width - tw)) + "px";
 }
 songRange.addEventListener("pointerdown", ()=>{ songTip.classList.add("show"); updateTip(); });
 songRange.addEventListener("pointermove", ()=>{ if(songTip.classList.contains("show")) updateTip(); });
