@@ -29,6 +29,7 @@ h1{font-size:24px}
 .codeInput{font-family:Consolas,Monaco,monospace;font-size:14px;min-height:140px;white-space:pre;overflow:auto;line-height:1.5}
 #cardManageBtn{background:#db2777;color:white;}
 #shuffleBtn{background:#7c3aed;color:white;}
+#cardColorBtn{background:#f59e0b;color:white;}
 .backHomeBtn{background:#6b7280;color:white;}
 
 .nameList{display:flex;flex-direction:column;gap:6px}
@@ -146,6 +147,7 @@ h1{font-size:24px}
 </div>
 <h1>抽卡页面</h1>
 <div class="header-buttons">
+<button id="cardColorBtn" onclick="openCardColor()">🎨 颜色</button>
 <button id="shuffleBtn" onclick="shuffleCards()">🔀 打乱</button>
 <button id="cardManageBtn">📋 卡片管理</button>
 </div>
@@ -226,6 +228,26 @@ h1{font-size:24px}
 <div class="cardManageList" id="cardManageList"></div>
 <div class="modalFooter">
 <button class="btnGray" onclick="closeCardManageModal()">关闭</button>
+</div>
+</div>
+</div>
+
+<div class="modalMask" id="cardColorModalMask">
+<div class="modal">
+<h3>卡片颜色设置</h3>
+<div class="row">
+<div class="colorRow">
+<span>正面底色：</span>
+<input type="color" id="cardFrontColor2" value="#2563eb">
+</div>
+<div class="colorRow">
+<span>背面边框：</span>
+<input type="color" id="cardBorderColor2" value="#2563eb">
+</div>
+<button class="fullBtn btnPrimary" onclick="saveCardColor2()">应用颜色</button>
+</div>
+<div class="modalFooter">
+<button class="btnGray" onclick="closeCardColorModal()">关闭</button>
 </div>
 </div>
 </div>
@@ -316,6 +338,30 @@ function saveCardData(){
 function saveCardColor(){
   cardTheme.front = document.getElementById("cardFrontColor").value;
   cardTheme.border = document.getElementById("cardBorderColor").value;
+  localStorage.setItem(COLOR_STORAGE_KEY, JSON.stringify(cardTheme));
+  scheduleSync();
+  renderCardManageList();
+  renderCardPageList();
+  alert("卡片配色已生效！");
+}
+
+// ===== 抽卡页颜色设置 =====
+function openCardColor(){
+  document.getElementById("cardFrontColor2").value = cardTheme.front;
+  document.getElementById("cardBorderColor2").value = cardTheme.border;
+  document.getElementById("cardColorModalMask").style.display="flex";
+}
+function closeCardColorModal(){
+  document.getElementById("cardColorModalMask").style.display="none";
+}
+document.getElementById("cardColorModalMask").onclick = function(e){
+  if(e.target === this) closeCardColorModal();
+};
+function saveCardColor2(){
+  cardTheme.front = document.getElementById("cardFrontColor2").value;
+  cardTheme.border = document.getElementById("cardBorderColor2").value;
+  document.getElementById("cardFrontColor").value = cardTheme.front;
+  document.getElementById("cardBorderColor").value = cardTheme.border;
   localStorage.setItem(COLOR_STORAGE_KEY, JSON.stringify(cardTheme));
   scheduleSync();
   renderCardManageList();
