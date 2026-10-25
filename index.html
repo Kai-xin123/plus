@@ -188,16 +188,18 @@ h1{font-size:24px}
 <div class="modal">
 <h3>发放作业</h3>
 <div class="row">
-<label>作业内容（学生端只显示这段文字）</label>
-<textarea id="homeworkInput" class="homeworkText" placeholder="输入今天要发放的作业文字"></textarea>
+<label>作业内容（输入即实时发放，自动保存）</label>
+<textarea id="homeworkInput" class="homeworkText" placeholder="输入作业文字，自动实时保存" oninput="autoSaveHomework()"></textarea>
 </div>
 <div class="row">
 <button class="fullBtn codeToggleBtn" onclick="toggleCodeArea()">&lt;/&gt; 代码</button>
 <div id="codeArea" style="display:none;margin-top:8px">
-  <textarea id="homeworkCodeInput" class="homeworkText codeInput" placeholder="粘贴/输入要发放的代码"></textarea>
+  <textarea id="homeworkCodeInput" class="homeworkText codeInput" placeholder="粘贴/输入要发放的代码" oninput="autoSaveHomework()"></textarea>
 </div>
 </div>
-<button class="fullBtn btnPrimary" onclick="saveHomework()">保存并发放</button>
+<div class="halfRow">
+<button class="halfBtn btnDanger" onclick="closeHomework()">关闭作业（清空）</button>
+</div>
 <div class="modalFooter">
 <button class="btnGray" onclick="closeHomeworkModal()">关闭</button>
 </div>
@@ -524,7 +526,12 @@ function closeHomeworkModal(){
 document.getElementById("homeworkModalMask").onclick = function(e){
   if(e.target === this) closeHomeworkModal();
 };
-async function saveHomework(){
+let homeworkTimer = null;
+function autoSaveHomework(){
+  clearTimeout(homeworkTimer);
+  homeworkTimer = setTimeout(postHomework, 400);
+}
+async function postHomework(){
   const text = document.getElementById("homeworkInput").value;
   const code = document.getElementById("homeworkCodeInput").value;
   try{
@@ -536,12 +543,22 @@ async function saveHomework(){
     if(!r.ok){
       let msg = r.status;
       try{ const e = await r.json(); if(e.error) msg = e.error; }catch(_){}
-      alert("保存失败：" + msg);
-      return;
+      console.warn("作业保存失败：" + msg);
     }
-    alert("作业已发放！");
+  }catch(e){ console.warn("作业保存失败"); }
+}
+async function closeHomework(){
+  if(!confirm("确定关闭作业？学生端将显示“暂无作业”")) return;
+  document.getElementById("homeworkInput").value = "";
+  document.getElementById("homeworkCodeInput").value = "";
+  try{
+    await fetch("/api/homework",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({text:"", code:""})
+    });
     closeHomeworkModal();
-  }catch(e){ alert("保存失败：无法连接 /api/homework（接口未生效）"); }
+  }catch(e){ alert("操作失败：无法连接接口"); }
 }
 
 document.getElementById("cardManageBtn").onclick = ()=>{
