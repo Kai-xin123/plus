@@ -21,6 +21,8 @@ h1{font-size:26px;margin-bottom:18px;color:#0ea5e9;border-bottom:2px solid #eef2
 .codeBox.open .codeBody{display:block}
 .codeBody pre{font-family:Consolas,Monaco,monospace;font-size:14px;line-height:1.6;white-space:pre}
 .time{margin-top:20px;font-size:13px;color:#999;text-align:right}
+#copyToast{position:fixed;left:50%;top:32%;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:#fff;padding:10px 22px;border-radius:10px;font-size:15px;opacity:0;transition:opacity 0.25s ease;pointer-events:none;z-index:9999;box-shadow:0 4px 14px rgba(0,0,0,0.3)}
+#copyToast.show{opacity:1}
 </style>
 </head>
 <body>
@@ -40,8 +42,16 @@ h1{font-size:26px;margin-bottom:18px;color:#0ea5e9;border-bottom:2px solid #eef2
 
   <div class="time" id="time"></div>
 </div>
+<div id="copyToast">代码已复制！</div>
 <script>
 let currentCode = "";
+let toastTimer = null;
+function showCopyToast(){
+  const t = document.getElementById("copyToast");
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> t.classList.remove("show"), 1500);
+}
 function toggleCode(){
   const box = document.getElementById("codeBox");
   box.classList.toggle("open");
@@ -56,6 +66,7 @@ async function copyCode(btn){
     document.execCommand("copy"); ta.remove();
   }
   btn.textContent = "✓";
+  showCopyToast();
   setTimeout(()=>{ btn.textContent = "复制"; }, 1500);
 }
 async function loadHomework(){
