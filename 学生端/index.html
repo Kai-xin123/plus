@@ -32,7 +32,7 @@ h1{font-size:26px;margin-bottom:18px;color:#0ea5e9;border-bottom:2px solid #eef2
     <div class="codeBar" onclick="toggleCode()">
       <span class="left">&lt;/&gt; 代码 <span id="codeArrow">▼</span></span>
       <span class="btns">
-        <button onclick="event.stopPropagation();copyCode()">复制</button>
+        <button onclick="event.stopPropagation();copyCode(this)">复制</button>
       </span>
     </div>
     <div class="codeBody"><pre id="codePre"></pre></div>
@@ -47,16 +47,17 @@ function toggleCode(){
   box.classList.toggle("open");
   document.getElementById("codeArrow").textContent = box.classList.contains("open") ? "▲" : "▼";
 }
-async function copyCode(){
+async function copyCode(btn){
   try{
     await navigator.clipboard.writeText(currentCode);
-    alert("代码已复制！");
   }catch(e){
     const ta = document.createElement("textarea");
     ta.value = currentCode; document.body.appendChild(ta); ta.select();
     document.execCommand("copy"); ta.remove();
-    alert("代码已复制！");
   }
+  btn.textContent = "✓";
+  btn.style.background = "#16a34a";
+  setTimeout(()=>{ btn.textContent = "复制"; btn.style.background = ""; }, 1500);
 }
 async function loadHomework(){
   const el = document.getElementById("homeworkText");
