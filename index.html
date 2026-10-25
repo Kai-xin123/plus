@@ -19,6 +19,10 @@ body{background:var(--bg);color:var(--text);padding:20px;padding-bottom:40px;tra
 .homePage{display:block}
 .cardPage{display:none}
 #themeBtn{background:#64748b;color:white;font-size:18px;line-height:1;padding:8px 12px}
+#songBar{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;display:flex;align-items:center;gap:10px;background:rgba(0,0,0,0.75);color:#fff;padding:8px 16px;border-radius:999px;opacity:0;transition:opacity 0.4s ease;pointer-events:none;z-index:999;width:min(480px,90vw)}
+#songBar.show{opacity:1;pointer-events:auto}
+#songBar span{font-size:12px;font-variant-numeric:tabular-nums;min-width:38px;text-align:center}
+#songBar input{flex:1;accent-color:#f59e0b;cursor:pointer}
 
 .container{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1400px;margin:0 auto}
 header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
@@ -128,6 +132,11 @@ h1{font-size:24px}
 </head>
 <body>
 <audio id="song" src="难忘今宵.mp3" preload="auto"></audio>
+<div id="songBar">
+  <span id="songTime">00:00</span>
+  <input type="range" id="songRange" min="0" max="0" step="0.1" value="0">
+  <span id="songDur">00:00</span>
+</div>
 <div class="homePage">
 <header>
 <h1>积分系统</h1>
@@ -577,8 +586,42 @@ document.getElementById("modalMask").onclick = function(e){
 // ===== 难忘今宵 =====
 const song = document.getElementById("song");
 const songBtn = document.getElementById("songBtn");
-song.addEventListener("play", ()=>{ songBtn.textContent = "⚡难忘今宵⚡l l"; });
-song.addEventListener("pause", ()=>{ songBtn.textContent = "⚡难忘今宵⚡▶"; });
+const songBar = document.getElementById("songBar");
+const songRange = document.getElementById("songRange");
+const songTime = document.getElementById("songTime");
+const songDur = document.getElementById("songDur");
+const OFF = 2; // 从2秒开始，显示归零
+function fmtSong(s){
+  s = Math.max(0, s);
+  const m = Math.floor(s / 60);
+  const ss = Math.floor(s % 60);
+  return (m<10?"0":"") + m + ":" + (ss<10?"0":"") + ss;
+}
+function showSongBar(){
+  songBar.classList.add("show");
+  if(song.duration){
+    songRange.max = Math.max(0, song.duration - OFF);
+    songDur.textContent = fmtSong(song.duration - OFF);
+  }
+  songRange.value = Math.max(0, song.currentTime - OFF);
+  songTime.textContent = fmtSong(song.currentTime - OFF);
+}
+function hideSongBar(){ songBar.classList.remove("show"); }
+song.addEventListener("play", ()=>{ songBtn.textContent = "⚡难忘今宵⚡l l"; showSongBar(); });
+song.addEventListener("pause", ()=>{ songBtn.textContent = "⚡难忘今宵⚡▶"; hideSongBar(); });
+song.addEventListener("loadedmetadata", ()=>{
+  if(song.duration){ songRange.max = Math.max(0, song.duration - OFF); songDur.textContent = fmtSong(song.duration - OFF); }
+});
+song.addEventListener("timeupdate", ()=>{
+  if(song.paused) return;
+  const t = Math.max(0, song.currentTime - OFF);
+  songRange.value = t;
+  songTime.textContent = fmtSong(t);
+});
+songRange.addEventListener("input", ()=>{
+  song.currentTime = parseFloat(songRange.value) + OFF;
+  songTime.textContent = fmtSong(songRange.value);
+});
 function toggleSong(){
   if(song.paused){ song.currentTime = 2; song.play(); } else { song.pause(); song.currentTime = 0; }
 }
