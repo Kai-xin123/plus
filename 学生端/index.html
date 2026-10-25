@@ -15,7 +15,7 @@ h1{font-size:26px;margin-bottom:18px;color:#0ea5e9;border-bottom:2px solid #eef2
 .codeBar{display:flex;align-items:center;justify-content:space-between;background:#334155;color:#fff;padding:10px 14px;cursor:pointer;user-select:none}
 .codeBar .left{display:flex;align-items:center;gap:8px;font-weight:600}
 .codeBar .btns{display:flex;gap:8px}
-.codeBar button{background:#475569;color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:13px}
+.codeBar button{background:#475569;color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:13px;min-width:52px;display:flex;align-items:center;justify-content:center}
 .codeBar button:hover{background:#64748b}
 .codeBody{display:none;background:#0f172a;color:#e2e8f0;padding:16px;overflow:auto;max-height:420px}
 .codeBox.open .codeBody{display:block}
@@ -56,8 +56,7 @@ async function copyCode(btn){
     document.execCommand("copy"); ta.remove();
   }
   btn.textContent = "✓";
-  btn.style.background = "#16a34a";
-  setTimeout(()=>{ btn.textContent = "复制"; btn.style.background = ""; }, 1500);
+  setTimeout(()=>{ btn.textContent = "复制"; }, 1500);
 }
 async function loadHomework(){
   const el = document.getElementById("homeworkText");
