@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>积分排行榜</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,sans-serif}
+body{background:#f4f7fa;color:#222;padding:20px;padding-bottom:40px}
+.homePage{display:block}
+.cardPage{display:none}
+
+.container{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1400px;margin:0 auto}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+h1{font-size:24px}
+.header-buttons button{padding:8px 16px;border:none;border-radius:8px;cursor:pointer;font-size:16px;margin-left:8px}
+#openSetting{background:#2563eb;color:white;}
+#pickBtn{background:#9333ea;color:white;}
+#goCardPageBtn{background:#db2777;color:white;}
+#homeworkBtn{background:#0ea5e9;color:white;}
+.homeworkText{width:100%;min-height:160px;padding:10px;border:1px solid #ddd;border-radius:6px;resize:vertical;font-family:inherit;font-size:15px;line-height:1.6}
+.codeToggleBtn{background:#334155;color:white}
+.codeInput{font-family:Consolas,Monaco,monospace;font-size:14px;min-height:140px;white-space:pre;overflow:auto;line-height:1.5}
+#cardManageBtn{background:#db2777;color:white;}
+.backHomeBtn{background:#6b7280;color:white;}
+
+.nameList{display:flex;flex-direction:column;gap:6px}
+.nameCard{padding:15px 14px;border-radius:10px;background:#fff;box-shadow:0 2px 6px #00000015;transition:transform 0.25s ease, box-shadow 0.25s ease, padding 0.25s ease;user-select:none;display:flex;align-items:center;justify-content:space-between;position:relative}
+.nameCard:hover{transform:scaleX(1.04) scaleY(1.04);box-shadow:0 6px 16px #00000028;padding:15px 16px}
+.nameCard .nameText{font-size:12px;font-weight:500}
+.nameCard .scoreText{color:#2563eb;font-weight:bold;font-size:13px}
+.nameCard .scoreBtns{display:flex;align-items:center}
+.nameCard .subBtn{display:none}
+.nameCard:hover .subBtn{display:inline-block}
+.nameCard .scoreBtns button{padding:4px 12px;border:none;border-radius:5px;cursor:pointer;font-size:12px}
+.btnSub{background:#ef4444;color:white}
+
+.rankBox{background:#fff;border-radius:12px;padding:16px;box-shadow:0 2px 8px #00000018;height:fit-content;overflow:hidden}
+.rankBox h2{margin-bottom:14px;font-size:20px}
+.rankListWrap{position:relative}
+.rankItem{display:flex;justify-content:space-between;padding:10px 8px;border-bottom:1px solid #eee;align-items:center;
+  transition: transform 0.5s ease, background-color 0.5s ease;
+}
+.rankItem.up{background:#dcfce7}
+.rankItem.down{background:#fee2e2}
+.rankItem .rankNum{width:28px;height:28px;border-radius:50%;background:#eef2ff;color:#2563eb;display:grid;place-items:center;font-weight:bold;margin-right:8px}
+.rankItem .rankName{flex:1}
+.rankItem .rankScore{font-weight:bold;border-radius:4px;padding:1px 4px}
+.rankItem .rankScore.flash{animation:flashYellow 0.9s ease 1}
+@keyframes flashYellow{
+  0%,100%{background:transparent;color:inherit}
+  25%{background:#fde047;color:#111}
+  50%{background:transparent;color:inherit}
+  75%{background:#fde047;color:#111}
+}
+
+.modalMask{position:fixed;inset:0;background:#00000050;display:none;align-items:center;justify-content:center;z-index:99}
+.modal{width:520px;background:#fff;border-radius:12px;padding:20px}
+.modal h3{margin-bottom:16px}
+.modal .row{margin-bottom:14px}
+.modal label{display:block;margin-bottom:6px;font-weight:500;display:flex;align-items:center;gap:6px}
+.modal input{width:100%;padding:8px;border:1px solid #ddd;border-radius:6px}
+.colorRow{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center;margin-top:4px}
+.colorRow input[type=color]{width:100%;height:42px;padding:4px;border:1px solid #d1d5db;border-radius:6px;cursor:pointer;background:#fff;box-shadow:none}
+.colorRow input[type=color]::-webkit-color-swatch-wrapper{padding:0}
+.colorRow input[type=color]::-webkit-color-swatch{border:1px solid #d1d5db;border-radius:4px}
+.colorRow input[type=color]::-moz-color-swatch{border:1px solid #d1d5db;border-radius:4px}
+
+.infoIcon{width:20px;height:20px;border-radius:50%;background:#9ca3af;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;font-weight:bold}
+
+.modal .fullBtn{width:100%;padding:10px;border:none;border-radius:6px;cursor:pointer;font-size:16px;margin-top:6px}
+.modal .halfRow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+.modal .halfBtn{width:100%;padding:10px;border:none;border-radius:6px;cursor:pointer;font-size:16px}
+.btnPrimary{background:#2563eb;color:white}
+.btnDanger{background:#ef4444;color:white}
+.btnGray{background:#9ca3af;color:white;border-radius:8px;padding:12px 26px;font-size:18px;}
+#fileInput{display:none}
+.fileBtn{display:inline-block;width:100%;background:#10b981;color:white;padding:10px;border-radius:6px;cursor:pointer;text-align:center;font-size:16px;margin-top:6px}
+.modalFooter{margin-top:20px;text-align:right}
+
+.pickFullScreen{position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;display:none;z-index:9999;align-items:center;justify-content:center;text-align:center;cursor:pointer;opacity:0;transition:opacity 0.18s ease}
+.pickFullScreen.show{opacity:1}
+.pickFullScreen .pickName{font-size:96px;font-weight:bold;text-shadow:0 2px 8px rgba(0,0,0,0.4)}
+.pickFullScreen .tip{margin-top:20px;font-size:20px;opacity:0.6}
+
+.cardManageModal{width:560px;max-height:80vh;overflow:auto}
+.cardInputRow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.cardManageList{display:grid;grid-template-columns:repeat(auto-fill, 90px);gap:12px;margin-top:12px}
+.flipCard{width:90px;height:120px;position:relative}
+.flipCard-inner{width:100%;height:100%;position:relative}
+.flipCard-front,.flipCard-back{position:absolute;width:100%;height:100%;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:6px;text-align:center;overflow:hidden}
+.flipCard-front{color:white;font-size:24px;font-weight:bold;z-index:2}
+.flipCard-back{background:#fff;color:#111;border:2px solid;font-size:14px;z-index:1}
+.flipCard.flipped .flipCard-front{z-index:1}
+.flipCard.flipped .flipCard-back{z-index:2}
+.flipCard .delCardBtn{position:absolute;top:-6px;right:-6px;width:22px;height:22px;background:#ef4444;color:#fff;border-radius:50%;border:none;cursor:pointer;font-weight:bold;z-index:10;font-size:14px;line-height:1}
+
+.cardPageContainer{max-width:1400px;margin:0 auto}
+.cardPageList{display:grid;grid-template-columns:repeat(auto-fill, 110px);gap:16px;margin-top:20px}
+.bigFlipCard{width:110px;height:150px;position:relative}
+.bigFlipCard-inner{width:100%;height:100%;position:relative}
+.bigFlipCard-front,.bigFlipCard-back{position:absolute;width:100%;height:100%;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:8px;text-align:center;overflow:hidden}
+.bigFlipCard-front{color:white;font-size:28px;font-weight:bold;z-index:2}
+.bigFlipCard-back{background:#fff;color:#111;border:2px solid;font-size:15px;z-index:1}
+.bigFlipCard.flipped .bigFlipCard-front{z-index:1}
+.bigFlipCard.flipped .bigFlipCard-back{z-index:2}
+
+.footerText{text-align:center;margin-top:30px;color:#666;font-size:15px}
+</style>
+</head>
+<body>
+<div class="homePage">
+<header>
+<h1>积分系统</h1>
+<div class="header-buttons">
+<button id="openSetting">⚙ 设置</button>
+<button id="pickBtn">🎲 抽选人员</button>
+<button id="goCardPageBtn">🎴 抽卡</button>
+<button id="homeworkBtn">📋 发放作业</button>
+</div>
+</header>
+<div class="container">
+<div class="mainArea">
+<div class="nameList" id="nameList"></div>
+</div>
+<div class="rankBox">
+<h2>🏆 排行榜</h2>
+<div class="rankListWrap" id="rankList"></div>
+</div>
+</div>
+</div>
+
+<div class="cardPage">
+<header>
+<div class="header-buttons">
+<button class="backHomeBtn" onclick="backToHome()">←</button>
+</div>
+<h1>抽卡页面</h1>
+<div class="header-buttons">
+<button id="cardManageBtn">📋 卡片管理</button>
+</div>
+</header>
+<div class="cardPageContainer">
+<div class="cardPageList" id="cardPageList"></div>
+</div>
+</div>
+
+<div class="modalMask" id="modalMask">
+<div class="modal">
+<h3>设置面板</h3>
+<div class="row">
+<label>手动添加名字</label>
+<input id="addNameInput" placeholder="输入姓名">
+<button class="fullBtn btnPrimary" onclick="addPerson()">添加</button>
+</div>
+<div class="row">
+<label>Excel批量导入 <span class="infoIcon" onclick="showExcelTip()">i</span></label>
+<input type="file" id="fileInput" accept=".xlsx,.xls">
+<label class="fileBtn" for="fileInput">选择Excel文件</label>
+</div>
+<div class="row">
+<label>🎨 卡片全局颜色设置</label>
+<div class="colorRow">
+<span>正面底色：</span>
+<input type="color" id="cardFrontColor" value="#2563eb">
+</div>
+<div class="colorRow">
+<span>背面边框：</span>
+<input type="color" id="cardBorderColor" value="#2563eb">
+</div>
+<button class="fullBtn btnPrimary" onclick="saveCardColor()">应用颜色</button>
+</div>
+<div class="row">
+<label>其他操作</label>
+<div class="halfRow">
+<button class="halfBtn btnDanger" onclick="resetAllScore()">重置所有人分数</button>
+<button class="halfBtn btnDanger" onclick="clearAll()">清空全部名单</button>
+</div>
+</div>
+<div class="modalFooter">
+<button class="btnGray" onclick="closeModal()">关闭</button>
+</div>
+</div>
+</div>
+
+<div class="modalMask" id="homeworkModalMask">
+<div class="modal">
+<h3>发放作业</h3>
+<div class="row">
+<label>作业内容（学生端只显示这段文字）</label>
+<textarea id="homeworkInput" class="homeworkText" placeholder="输入今天要发放的作业文字"></textarea>
+</div>
+<div class="row">
+<button class="fullBtn codeToggleBtn" onclick="toggleCodeArea()">&lt;/&gt; 代码</button>
+<div id="codeArea" style="display:none;margin-top:8px">
+  <textarea id="homeworkCodeInput" class="homeworkText codeInput" placeholder="粘贴/输入要发放的代码"></textarea>
+</div>
+</div>
+<button class="fullBtn btnPrimary" onclick="saveHomework()">保存并发放</button>
+<div class="modalFooter">
+<button class="btnGray" onclick="closeHomeworkModal()">关闭</button>
+</div>
+</div>
+</div>
+
+<div class="modalMask" id="cardManageModalMask">
+<div class="modal cardManageModal">
+<h3>卡片管理（点击卡片翻面，点红色×删除）</h3>
+<div class="cardInputRow">
+<input id="cardFrontInput" placeholder="序号（自动生成）" disabled>
+<input id="cardBackInput" placeholder="反面揭示文字">
+</div>
+<button class="fullBtn btnPrimary" onclick="addCard()">添加卡片</button>
+<div class="cardManageList" id="cardManageList"></div>
+<div class="modalFooter">
+<button class="btnGray" onclick="closeCardManageModal()">关闭</button>
+</div>
+</div>
+</div>
+
+<div class="pickFullScreen" id="pickScreen">
+<div>
+<div class="pickName" id="pickResult"></div>
+<div class="tip">点击屏幕任意位置关闭</div>
+</div>
+</div>
+
+<div class="footerText">© Xiaozhu所有</div>
+
+<script>
+let people = [];
+const STORAGE_KEY = "scoreData";
+let prevRankMap = {};
+
+let cardList = [];
+const CARD_STORAGE_KEY = "cardData";
+const COLOR_STORAGE_KEY = "cardThemeColor";
+let cardTheme = {
+    front: "#2563eb",
+    border: "#2563eb"
+};
+
+// ===== Cloudflare Pages：同源 /api/data，无需填地址；本地无服务时自动回退本地存储 =====
+const API_BASE = "";
+let syncTimer = null;
+function scheduleSync(){
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(syncKV, 300);
+}
+async function syncKV(){
+  const payload = {people, cardList, cardTheme, updatedAt: Date.now()};
+  try{
+    await fetch(API_BASE + "/api/data", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify(payload)
+    });
+  }catch(e){}
+}
+async function loadKV(){
+  try{
+    const r = await fetch(API_BASE + "/api/data");
+    if(!r.ok) return false;
+    const d = await r.json();
+    if(d && Array.isArray(d.people)){
+      people = d.people;
+      cardList = Array.isArray(d.cardList) ? d.cardList : [];
+      if(d.cardTheme) cardTheme = d.cardTheme;
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
+
+async function loadData(){
+  const ok = await loadKV();
+  if(!ok){
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if(saved) people = JSON.parse(saved);
+    const cardSave = localStorage.getItem(CARD_STORAGE_KEY);
+    if(cardSave) cardList = JSON.parse(cardSave);
+    const colorSave = localStorage.getItem(COLOR_STORAGE_KEY);
+    if(colorSave) cardTheme = JSON.parse(colorSave);
+  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(people));
+  localStorage.setItem(CARD_STORAGE_KEY, JSON.stringify(cardList));
+  localStorage.setItem(COLOR_STORAGE_KEY, JSON.stringify(cardTheme));
+  prevRankMap = getRankMap();
+  document.getElementById("cardFrontColor").value = cardTheme.front;
+  document.getElementById("cardBorderColor").value = cardTheme.border;
+  renderAll();
+  renderCardManageList();
+  renderCardPageList();
+}
+function saveData(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(people));
+  scheduleSync();
+}
+function saveCardData(){
+  localStorage.setItem(CARD_STORAGE_KEY, JSON.stringify(cardList));
+  scheduleSync();
+}
+function saveCardColor(){
+  cardTheme.front = document.getElementById("cardFrontColor").value;
+  cardTheme.border = document.getElementById("cardBorderColor").value;
+  localStorage.setItem(COLOR_STORAGE_KEY, JSON.stringify(cardTheme));
+  scheduleSync();
+  renderCardManageList();
+  renderCardPageList();
+  alert("卡片配色已生效！");
+}
+
+function goCardPage(){
+  document.querySelector(".homePage").style.display="none";
+  document.querySelector(".cardPage").style.display="block";
+  renderCardPageList();
+}
+function backToHome(){
+  document.querySelector(".cardPage").style.display="none";
+  document.querySelector(".homePage").style.display="block";
+}
+
+function renderNameCards(){
+  const wrap = document.getElementById("nameList");
+  wrap.innerHTML = "";
+  people.forEach((p,idx)=>{
+    const div = document.createElement("div");
+    div.className = "nameCard";
+    div.style.cursor = "pointer";
+    div.innerHTML = `
+      <span class="nameText">${p.name}</span>
+      <span class="scoreText">${p.score}分</span>
+      <span class="scoreBtns">
+        <button class="btnSub subBtn" onclick="subScore(${idx})">-</button>
+      </span>
+    `;
+    div.querySelector('.subBtn').addEventListener('mousedown', e=>e.stopPropagation());
+    div.onclick = (e)=>{
+      if(e.target.closest('.subBtn')) return;
+      addScore(idx);
+    };
+    wrap.appendChild(div);
+  })
+}
+
+function addScore(personIndex){
+  prevRankMap = getRankMap();
+  people[personIndex].score +=1;
+  const newRankMap = getRankMap();
+  saveData();
+  renderRankWithAnimation(prevRankMap, newRankMap, people[personIndex].name);
+  renderNameCards();
+  prevRankMap = newRankMap;
+}
+function subScore(personIndex){
+  prevRankMap = getRankMap();
+  people[personIndex].score -=1;
+  const newRankMap = getRankMap();
+  saveData();
+  renderRankWithAnimation(prevRankMap, newRankMap, people[personIndex].name);
+  renderNameCards();
+  prevRankMap = newRankMap;
+}
+
+function getRankMap(){
+  const sorted = [...people].sort((a,b)=>b.score - a.score);
+  const map = {};
+  sorted.forEach((item,i)=> map[item.name] = i+1);
+  return map;
+}
+
+function renderRankWithAnimation(oldMap, newMap, changedName){
+  const wrap = document.getElementById("rankList");
+  wrap.innerHTML = "";
+  const sorted = [...people].sort((a,b)=>b.score - a.score);
+  sorted.forEach((p,i)=>{
+    const div = document.createElement("div");
+    div.className = "rankItem";
+    div.dataset.name = p.name;
+    const newPos = i;
+    const oldPos = (oldMap[p.name] ?? newPos)-1;
+    const delta = oldPos - newPos;
+    div.style.transform = `translateY(${delta * 46}px)`;
+    div.innerHTML = `
+      <span class="rankNum">${i+1}</span>
+      <span class="rankName">${p.name}</span>
+      <span class="rankScore">${p.score}分</span>
+    `;
+    wrap.appendChild(div);
+    setTimeout(()=>{
+      div.style.transform = "translateY(0px)";
+      if(changedName && p.name === changedName){
+        const scoreSpan = div.querySelector('.rankScore');
+        if(scoreSpan) scoreSpan.classList.add("flash");
+      }
+      if(newMap[p.name] < oldMap[p.name]){
+        div.classList.add("up");
+      }else if(newMap[p.name] > oldMap[p.name]){
+        div.classList.add("down");
+      }
+      setTimeout(()=>{
+        div.classList.remove("up","down");
+      },600);
+    },50);
+  })
+}
+
+function renderRank(){
+  const wrap = document.getElementById("rankList");
+  wrap.innerHTML = "";
+  const sorted = [...people].sort((a,b)=>b.score - a.score);
+  sorted.forEach((p,i)=>{
+    const div = document.createElement("div");
+    div.className = "rankItem";
+    div.dataset.name = p.name;
+    div.innerHTML = `
+      <span class="rankNum">${i+1}</span>
+      <span class="rankName">${p.name}</span>
+      <span class="rankScore">${p.score}分</span>
+    `;
+    wrap.appendChild(div);
+  })
+}
+
+function renderAll(){
+  renderNameCards();
+  renderRank();
+}
+
+function addPerson(){
+  const name = document.getElementById("addNameInput").value.trim();
+  if(!name) return alert("名字不能为空");
+  const exist = people.find(x=>x.name === name);
+  if(exist) return alert("该名字已存在");
+  people.push({name, score:0});
+  document.getElementById("addNameInput").value = "";
+  saveData();
+  prevRankMap = getRankMap();
+  renderAll();
+}
+
+function showExcelTip(){
+  alert("会在表格第一列读取名字，加入名单。文件格式支持xlsx或xls。");
+}
+
+document.getElementById("fileInput").onchange = function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data,{type:"array"});
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const arr = XLSX.utils.sheet_to_json(sheet,{header:1});
+    const names = [];
+    for(let row of arr){
+      const n = String(row[0]||"").trim();
+      if(n) names.push(n);
+    }
+    let addCnt = 0;
+    names.forEach(name=>{
+      if(!people.find(x=>x.name === name)){
+        people.push({name,score:0});
+        addCnt++;
+      }
+    })
+    saveData();
+    prevRankMap = getRankMap();
+    renderAll();
+    alert(`导入完成，新增${addCnt}人`);
+    document.getElementById("fileInput").value = null;
+  }
+  reader.readAsArrayBuffer(file);
+}
+
+function resetAllScore(){
+  if(confirm("确定重置所有人分数为0？此操作不可撤销！")){
+    people.forEach(p=>p.score=0);
+    saveData();
+    prevRankMap = getRankMap();
+    renderAll();
+  }
+}
+
+function clearAll(){
+  if(confirm("⚠️警告：确定清空所有名单和分数，数据无法恢复！")){
+    people = [];
+    saveData();
+    prevRankMap = {};
+    renderAll();
+  }
+}
+
+document.getElementById("openSetting").onclick = ()=>{
+  document.getElementById("modalMask").style.display="flex";
+}
+function closeModal(){
+  document.getElementById("modalMask").style.display="none";
+}
+document.getElementById("modalMask").onclick = function(e){
+  if(e.target === this) closeModal();
+}
+
+// ===== 发放作业 =====
+function toggleCodeArea(){
+  const area = document.getElementById("codeArea");
+  area.style.display = area.style.display === "none" ? "block" : "none";
+}
+document.getElementById("homeworkBtn").onclick = async ()=>{
+  document.getElementById("homeworkModalMask").style.display="flex";
+  try{
+    const r = await fetch("/api/homework");
+    if(r.ok){
+      const d = await r.json();
+      document.getElementById("homeworkInput").value = d.text || "";
+      document.getElementById("homeworkCodeInput").value = d.code || "";
+    }
+  }catch(e){}
+};
+function closeHomeworkModal(){
+  document.getElementById("homeworkModalMask").style.display="none";
+}
+document.getElementById("homeworkModalMask").onclick = function(e){
+  if(e.target === this) closeHomeworkModal();
+};
+async function saveHomework(){
+  const text = document.getElementById("homeworkInput").value;
+  const code = document.getElementById("homeworkCodeInput").value;
+  try{
+    const r = await fetch("/api/homework",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({text, code})
+    });
+    if(!r.ok){ alert("保存失败，接口返回：" + r.status); return; }
+    alert("作业已发放！");
+    closeHomeworkModal();
+  }catch(e){ alert("保存失败：无法连接 /api/homework（接口未生效）"); }
+}
+
+document.getElementById("cardManageBtn").onclick = ()=>{
+  document.getElementById("cardManageModalMask").style.display="flex";
+}
+function closeCardManageModal(){
+  document.getElementById("cardManageModalMask").style.display="none";
+}
+document.getElementById("cardManageModalMask").onclick = function(e){
+  if(e.target === this) closeCardManageModal();
+}
+
+function addCard(){
+  const backText = document.getElementById("cardBackInput").value.trim();
+  if(!backText){
+    alert("请输入反面揭示文字");
+    return;
+  }
+  const newCard = {
+    id: Date.now(),
+    front: cardList.length + 1,
+    back: backText,
+    flipped: false
+  };
+  cardList.push(newCard);
+  document.getElementById("cardBackInput").value = "";
+  saveCardData();
+  renderCardManageList();
+  renderCardPageList();
+}
+
+function deleteCard(id){
+  if(!confirm("确定删除这张卡片吗？")) return;
+  cardList = cardList.filter(c => c.id !== id);
+  cardList.forEach((item,idx)=>{
+    item.front = idx+1;
+  })
+  saveCardData();
+  renderCardManageList();
+  renderCardPageList();
+}
+
+function renderCardManageList(){
+  const wrap = document.getElementById("cardManageList");
+  wrap.innerHTML = "";
+  cardList.forEach((card)=>{
+    const div = document.createElement("div");
+    div.className = "flipCard " + (card.flipped ? "flipped":"");
+    div.onclick = function(e){
+      if(e.target.classList.contains('delCardBtn')) return;
+      flipCardEffect(div, card, ()=>{
+        card.flipped = !card.flipped;
+        saveCardData();
+        renderCardManageList();
+        renderCardPageList();
+      });
+    }
+    div.innerHTML = `
+      <button class="delCardBtn" onclick="deleteCard(${card.id})">×</button>
+      <div class="flipCard-inner">
+        <div class="flipCard-front" style="background:${cardTheme.front}">${card.front}</div>
+        <div class="flipCard-back" style="border-color:${cardTheme.border}">${card.back}</div>
+      </div>
+    `;
+    wrap.appendChild(div);
+  })
+}
+
+function renderCardPageList(){
+  const wrap = document.getElementById("cardPageList");
+  wrap.innerHTML = "";
+  cardList.forEach((card)=>{
+    const div = document.createElement("div");
+    div.className = "bigFlipCard " + (card.flipped ? "flipped":"");
+    div.onclick = function(){
+      flipCardEffect(div, card, ()=>{
+        card.flipped = !card.flipped;
+        saveCardData();
+        renderCardManageList();
+        renderCardPageList();
+      });
+    }
+    div.innerHTML = `
+      <div class="bigFlipCard-inner">
+        <div class="bigFlipCard-front" style="background:${cardTheme.front}">${card.front}</div>
+        <div class="bigFlipCard-back" style="border-color:${cardTheme.border}">${card.back}</div>
+      </div>
+    `;
+    wrap.appendChild(div);
+  })
+}
+
+function flipCardEffect(cardEl, card, doneCallback){
+  const inner = cardEl.querySelector('.flipCard-inner, .bigFlipCard-inner');
+  if(!inner) return;
+  if(inner.dataset.flipping === "1") return;
+  inner.dataset.flipping = "1";
+
+  inner.style.transition = "transform 0.22s ease";
+  inner.style.transform = "scaleX(0)";
+
+  setTimeout(()=>{
+    cardEl.classList.toggle("flipped");
+    setTimeout(()=>{
+      inner.style.transform = "scaleX(1)";
+      setTimeout(()=>{
+        inner.dataset.flipping = "0";
+        inner.style.transition = "";
+        inner.style.transform = "";
+        if(doneCallback) doneCallback();
+      },220);
+    },30);
+  },220);
+}
+
+document.getElementById("pickBtn").onclick = function(){
+  if(people.length === 0){
+    alert("暂无人员名单，请先添加！");
+    return;
+  }
+  const randomIndex = Math.floor(Math.random() * people.length);
+  const selected = people[randomIndex];
+  document.getElementById("pickResult").textContent = selected.name;
+  const sc = document.getElementById("pickScreen");
+  sc.style.display="flex";
+  requestAnimationFrame(()=>requestAnimationFrame(()=>sc.classList.add("show")));
+}
+document.getElementById("pickScreen").onclick = function(){
+  this.classList.remove("show");
+  setTimeout(()=>{ this.style.display="none"; },180);
+}
+
+document.getElementById("goCardPageBtn").onclick = goCardPage;
+
+loadData();
+</script>
+</body>
+</html>
