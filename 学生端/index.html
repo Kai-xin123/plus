@@ -10,6 +10,7 @@ body{background:#f4f7fa;color:#222;min-height:100vh;display:flex;align-items:fle
 .card{max-width:760px;width:100%;background:#fff;border-radius:16px;box-shadow:0 4px 16px #00000018;padding:36px}
 h1{font-size:26px;margin-bottom:18px;color:#0ea5e9;border-bottom:2px solid #eef2f7;padding-bottom:12px}
 .homeworkText{font-size:20px;line-height:1.9;white-space:pre-wrap;min-height:60px}
+.homeworkText a{color:#2563eb;text-decoration:underline;cursor:pointer;word-break:break-all}
 .empty{color:#999;font-size:18px}
 .codeBox{margin-top:20px;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden}
 .codeBar{display:flex;align-items:center;justify-content:space-between;background:#334155;color:#fff;padding:10px 14px;cursor:pointer;user-select:none}
@@ -69,6 +70,14 @@ async function copyCode(btn){
   showCopyToast();
   setTimeout(()=>{ btn.textContent = "复制"; }, 1500);
 }
+function linkify(text){
+  const esc = text.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  return esc.replace(/(https?:\/\/[^\s<>"']+|www\.[^\s<>"']+|\b(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:com|cn|net|org|io|top|xyz|edu|gov|me|co|cc|biz)(?:[\/?#][^\s<>"']*)?)/gi, (m)=>{
+    let url = m;
+    if(!/^https?:\/\//i.test(url)) url = "https://" + url;
+    return '<a href="' + url.replace(/&/g,"&amp;").replace(/"/g,"&quot;") + '" target="_blank" rel="noopener noreferrer">' + m + '</a>';
+  });
+}
 async function loadHomework(){
   const el = document.getElementById("homeworkText");
   try{
@@ -80,7 +89,7 @@ async function loadHomework(){
     }
     const d = await r.json();
     if(d.text && d.text.trim()){
-      el.textContent = d.text; el.classList.remove("empty");
+      el.innerHTML = linkify(d.text); el.classList.remove("empty");
     }else{
       el.textContent = "暂无作业"; el.classList.add("empty");
     }
