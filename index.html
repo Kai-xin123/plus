@@ -645,8 +645,6 @@ function renderCardManageList(){
       flipCardEffect(div, card, ()=>{
         card.flipped = !card.flipped;
         saveCardData();
-        renderCardManageList();
-        renderCardPageList();
       });
     }
     div.innerHTML = `
@@ -670,8 +668,6 @@ function renderCardPageList(){
       flipCardEffect(div, card, ()=>{
         card.flipped = !card.flipped;
         saveCardData();
-        renderCardManageList();
-        renderCardPageList();
       });
     }
     div.innerHTML = `
