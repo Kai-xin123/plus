@@ -319,7 +319,7 @@ async function loadData(){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(people));
   localStorage.setItem(CARD_STORAGE_KEY, JSON.stringify(cardList));
   localStorage.setItem(COLOR_STORAGE_KEY, JSON.stringify(cardTheme));
-  cardList.forEach(c => { c.flipped = true; }); // 刷新后全部翻到反面
+  cardList.forEach(c => { c.flipped = false; }); // 刷新后全部翻到正面
   prevRankMap = getRankMap();
   document.getElementById("cardFrontColor").value = cardTheme.front;
   document.getElementById("cardBorderColor").value = cardTheme.border;
