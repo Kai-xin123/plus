@@ -1,11 +1,10 @@
-name = "score-plus"
+name = "plus-score"
 pages_build_output_dir = "."
 compatibility_date = "2024-11-01"
 
 # KV 绑定名：plus
-# Dashboard 网页上传部署：在项目 Settings → Bindings → KV namespace 里直接绑定，无需填写下面 id
-# 本地命令行预览：npx wrangler pages dev . --kv=plus
-# 仅当用 wrangler 部署并要从本配置绑定 KV 时，才取消下面注释并填真实 KV id
-# [[kv_namespaces]]
-# binding = "plus"
-# id = "你的KV_NAMESPACE_ID"
+# 把下面 id 换成你 KV 命名空间的真实 ID
+# 找 ID：Cloudflare → Workers & Pages → KV → 点进你的命名空间 → 复制 "Namespace ID"
+[[kv_namespaces]]
+binding = "plus"
+id = "d08cea74dfec4dbb94056c55947a6cf2"
