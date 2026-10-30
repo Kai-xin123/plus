@@ -19,7 +19,7 @@ body{background:var(--bg);color:var(--text);padding:20px;padding-bottom:40px;tra
 .homePage{display:block}
 .cardPage{display:none}
 #themeBtn{background:#64748b;color:white;font-size:18px;line-height:1;padding:8px 12px}
-#songBar{position:fixed;left:0;right:0;bottom:0;height:calc(100vh / 9);display:flex;flex-direction:row;align-items:center;gap:14px;background:rgba(0,0,0,0.78);padding:0 24px;opacity:0;transition:opacity 0.4s ease;pointer-events:none;z-index:999;box-sizing:border-box}
+#songBar{position:fixed;left:0;right:0;bottom:0;height:56px;display:flex;flex-direction:row;align-items:center;gap:14px;background:rgba(0,0,0,0.78);padding:0 24px;opacity:0;transition:opacity 0.4s ease;pointer-events:none;z-index:999;box-sizing:border-box}
 #songBar.show{opacity:1;pointer-events:auto}
 #songBar span{font-size:16px;font-variant-numeric:tabular-nums;min-width:48px;text-align:center;color:#fff}
 #songRangeWrap{flex:1;position:relative;display:flex;align-items:center;height:100%}
@@ -36,7 +36,7 @@ body{background:var(--bg);color:var(--text);padding:20px;padding-bottom:40px;tra
 #songRange::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#f59e0b;border:none;cursor:pointer;transition:transform 0.15s ease}
 #songRange:hover::-moz-range-thumb{transform:scale(1.25)}
 #songRange:active::-moz-range-thumb{transform:scale(1.6)}
-#lyricBox{position:fixed;right:28px;bottom:calc(100vh / 9 + 24px);left:auto;transform:none;opacity:0;transition:opacity 0.5s ease;pointer-events:none;z-index:998;text-align:right;width:min(560px,86vw)}
+#lyricBox{position:fixed;right:28px;bottom:76px;left:auto;transform:none;opacity:0;transition:opacity 0.5s ease;pointer-events:none;z-index:998;text-align:right;width:min(560px,86vw)}
 #lyricBox.show{opacity:1}
 #lyricCurrent{font-size:34px;font-weight:700;color:#f59e0b;text-shadow:0 2px 10px rgba(0,0,0,0.85),0 0 4px rgba(0,0,0,0.6);line-height:1.35;word-break:break-word}
 #lyricNext{font-size:22px;color:rgba(255,255,255,0.55);text-shadow:0 1px 6px rgba(0,0,0,0.8);margin-top:6px;word-break:break-word}
