@@ -27,13 +27,13 @@ body{background:var(--bg);color:var(--text);padding:20px;padding-bottom:40px;tra
 #songTip{position:absolute;bottom:calc(100% + 10px);left:0;transform:translateX(-50%);background:#111;color:#fff;padding:3px 10px;border-radius:6px;font-size:15px;pointer-events:none;opacity:0;transition:opacity 0.15s ease;white-space:nowrap;z-index:1000}
 #songTip.show{opacity:1}
 #songTip::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#111}
-#songRange{appearance:none;-webkit-appearance:none;cursor:pointer;height:4px;border-radius:3px;background:linear-gradient(to right,#f59e0b 0%,#f59e0b var(--p,0%),#3f3f46 var(--p,0%),#3f3f46 100%);outline:none}
-#songRange::-webkit-slider-runnable-track{height:4px;border-radius:3px;background:transparent}
-#songRange::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#f59e0b;border:none;cursor:pointer;margin-top:-8px;transition:transform 0.15s ease}
+#songRange{appearance:none;-webkit-appearance:none;background:transparent;cursor:pointer;height:20px;outline:none}
+#songRange::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:linear-gradient(to right,#f59e0b 0%,#f59e0b var(--p,0%),#3f3f46 var(--p,0%),#3f3f46 100%)}
+#songRange::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#f59e0b;border:none;cursor:pointer;margin-top:-6px;transition:transform 0.15s ease}
 #songRange:hover::-webkit-slider-thumb{transform:scale(1.25)}
 #songRange:active::-webkit-slider-thumb{transform:scale(1.6)}
-#songRange::-moz-range-track{height:4px;border-radius:3px;background:transparent}
-#songRange::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#f59e0b;border:none;cursor:pointer;transition:transform 0.15s ease}
+#songRange::-moz-range-track{height:4px;border-radius:2px;background:linear-gradient(to right,#f59e0b 0%,#f59e0b var(--p,0%),#3f3f46 var(--p,0%),#3f3f46 100%)}
+#songRange::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#f59e0b;border:none;cursor:pointer;transition:transform 0.15s ease}
 #songRange:hover::-moz-range-thumb{transform:scale(1.25)}
 #songRange:active::-moz-range-thumb{transform:scale(1.6)}
 #lyricBox{position:fixed;right:28px;bottom:calc(100vh / 9 + 24px);left:auto;transform:none;opacity:0;transition:opacity 0.5s ease;pointer-events:none;z-index:998;text-align:right;width:min(560px,86vw)}
