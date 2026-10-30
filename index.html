@@ -36,7 +36,6 @@ body{background:var(--bg);color:var(--text);padding:20px;padding-bottom:40px;tra
 #songRange:active::-moz-range-thumb{transform:scale(1.6)}
 #lyricBox{position:fixed;right:28px;bottom:96px;left:auto;transform:none;opacity:0;transition:opacity 0.5s ease;pointer-events:none;z-index:998;text-align:right;width:min(560px,86vw)}
 #lyricBox.show{opacity:1}
-#lyricInfo{font-size:15px;color:rgba(255,255,255,0.85);text-shadow:0 1px 6px rgba(0,0,0,0.8);margin-bottom:8px;word-break:break-word}
 #lyricCurrent{font-size:34px;font-weight:700;color:#f59e0b;text-shadow:0 2px 10px rgba(0,0,0,0.85),0 0 4px rgba(0,0,0,0.6);line-height:1.35;word-break:break-word}
 #lyricNext{font-size:22px;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,0.8);margin-top:6px;word-break:break-word}
 #lyricNext2{font-size:17px;color:rgba(255,255,255,0.72);text-shadow:0 1px 6px rgba(0,0,0,0.8);margin-top:4px;word-break:break-word}
@@ -160,7 +159,6 @@ h1{font-size:24px}
   <span id="songDur">00:00</span>
 </div>
 <div id="lyricBox">
-  <div id="lyricInfo"></div>
   <div id="lyricCurrent"></div>
   <div id="lyricNext"></div>
   <div id="lyricNext2"></div>
@@ -703,8 +701,6 @@ async function loadLyric(){
     const r = await fetch("难忘今宵-歌词.lrc?t=" + Date.now());
     const txt = await r.text();
     lyrics = parseLRC(txt);
-    const info = lyrics.filter(L => L.t <= OFF).map(L => L.text).join("  ");
-    document.getElementById("lyricInfo").textContent = info;
     updateLyric();
   }catch(e){ lyrics = []; }
 }
@@ -712,8 +708,9 @@ function showLyricBox(){ document.getElementById("lyricBox").classList.add("show
 function hideLyricBox(){ document.getElementById("lyricBox").classList.remove("show"); }
 function updateLyric(){
   if(!lyrics.length) return;
+  const lt = Math.max(0, song.currentTime - OFF);
   let idx = -1;
-  for(let i=0;i<lyrics.length;i++){ if(lyrics[i].t <= song.currentTime) idx = i; else break; }
+  for(let i=0;i<lyrics.length;i++){ if(lyrics[i].t <= lt) idx = i; else break; }
   const cur = idx >= 0 ? lyrics[idx].text : "";
   const curEl = document.getElementById("lyricCurrent");
   if(curEl.textContent !== cur){
