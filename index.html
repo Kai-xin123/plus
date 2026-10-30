@@ -34,6 +34,11 @@ body{background:var(--bg);color:var(--text);padding:20px;padding-bottom:40px;tra
 #songRange::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#f59e0b;border:none;cursor:pointer;transition:transform 0.15s ease}
 #songRange:hover::-moz-range-thumb{transform:scale(1.25)}
 #songRange:active::-moz-range-thumb{transform:scale(1.6)}
+#lyricBox{position:fixed;left:50%;bottom:20%;transform:translateX(-50%);opacity:0;transition:opacity 0.5s ease;pointer-events:none;z-index:998;text-align:center;width:min(920px,90vw)}
+#lyricBox.show{opacity:1}
+#lyricText{font-size:36px;font-weight:700;color:#f59e0b;text-shadow:0 2px 12px rgba(0,0,0,0.85),0 0 4px rgba(0,0,0,0.6);line-height:1.4;word-break:break-word}
+#lyricText.lyricAnim{animation:lyricIn 0.45s ease}
+@keyframes lyricIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
 .container{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1400px;margin:0 auto}
 header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
@@ -151,6 +156,7 @@ h1{font-size:24px}
   </div>
   <span id="songDur">00:00</span>
 </div>
+<div id="lyricBox"><div id="lyricText"></div></div>
 <div class="homePage">
 <header>
 <h1>积分系统</h1>
@@ -623,8 +629,8 @@ function showSongBar(){
   songTime.textContent = fmtSong(song.currentTime - OFF);
 }
 function hideSongBar(){ songBar.classList.remove("show"); }
-song.addEventListener("play", ()=>{ songBtn.textContent = "⚡难忘今宵⚡l l"; showSongBar(); });
-song.addEventListener("pause", ()=>{ songBtn.textContent = "⚡难忘今宵⚡▶"; hideSongBar(); });
+song.addEventListener("play", ()=>{ songBtn.textContent = "⚡难忘今宵⚡l l"; showSongBar(); showLyricBox(); loadLyric(); });
+song.addEventListener("pause", ()=>{ songBtn.textContent = "⚡难忘今宵⚡▶"; hideSongBar(); hideLyricBox(); });
 song.addEventListener("loadedmetadata", ()=>{
   if(song.duration && isFinite(song.duration)){
     songRange.max = Math.max(0, song.duration - OFF);
@@ -637,6 +643,7 @@ song.addEventListener("timeupdate", ()=>{
   const t = Math.max(0, song.currentTime - OFF);
   songRange.value = t;
   songTime.textContent = fmtSong(t);
+  updateLyric();
 });
 songRange.addEventListener("input", ()=>{
   song.currentTime = parseFloat(songRange.value) + OFF;
@@ -663,6 +670,47 @@ function syncSongFromRange(){
 }
 function toggleSong(){
   if(song.paused){ song.currentTime = 2; song.play(); } else { song.pause(); song.currentTime = 0; }
+}
+
+// ===== 歌词 =====
+let lyrics = [];
+function parseLRC(text){
+  const lines = [];
+  const re = /\[(\d{1,2}):(\d{1,2})(?:[.:](\d{1,3}))?\]/g;
+  text.split("\n").forEach(line=>{
+    const ms = [...line.matchAll(re)];
+    if(!ms.length) return;
+    const lyric = line.replace(re, "").trim();
+    ms.forEach(m=>{
+      const min = +m[1], sec = +m[2];
+      const frac = m[3] ? (m[3].length === 3 ? +m[3] : +m[3] * 10) : 0;
+      lines.push({ t: min * 60 + sec + frac / 1000, text: lyric });
+    });
+  });
+  lines.sort((a,b)=>a.t-b.t);
+  return lines;
+}
+async function loadLyric(){
+  try{
+    const r = await fetch("难忘今宵-歌词.lrc?t=" + Date.now());
+    const txt = await r.text();
+    lyrics = parseLRC(txt);
+    updateLyric();
+  }catch(e){ lyrics = []; }
+}
+function showLyricBox(){ document.getElementById("lyricBox").classList.add("show"); updateLyric(); }
+function hideLyricBox(){ document.getElementById("lyricBox").classList.remove("show"); }
+function updateLyric(){
+  if(!lyrics.length) return;
+  let cur = "";
+  for(const L of lyrics){ if(L.t <= song.currentTime) cur = L.text; else break; }
+  const el = document.getElementById("lyricText");
+  if(el.textContent !== cur){
+    el.textContent = cur;
+    el.classList.remove("lyricAnim");
+    void el.offsetWidth;
+    el.classList.add("lyricAnim");
+  }
 }
 
 // ===== 亮暗主题 =====
