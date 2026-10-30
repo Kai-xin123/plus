@@ -34,11 +34,13 @@ body{background:var(--bg);color:var(--text);padding:20px;padding-bottom:40px;tra
 #songRange::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#f59e0b;border:none;cursor:pointer;transition:transform 0.15s ease}
 #songRange:hover::-moz-range-thumb{transform:scale(1.25)}
 #songRange:active::-moz-range-thumb{transform:scale(1.6)}
-#lyricBox{position:fixed;left:50%;bottom:20%;transform:translateX(-50%);opacity:0;transition:opacity 0.5s ease;pointer-events:none;z-index:998;text-align:center;width:min(920px,90vw)}
+#lyricBox{position:fixed;right:28px;bottom:96px;left:auto;transform:none;opacity:0;transition:opacity 0.5s ease;pointer-events:none;z-index:998;text-align:right;width:min(560px,86vw)}
 #lyricBox.show{opacity:1}
-#lyricText{font-size:36px;font-weight:700;color:#f59e0b;text-shadow:0 2px 12px rgba(0,0,0,0.85),0 0 4px rgba(0,0,0,0.6);line-height:1.4;word-break:break-word}
-#lyricText.lyricAnim{animation:lyricIn 0.45s ease}
-@keyframes lyricIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+#lyricCurrent{font-size:34px;font-weight:700;color:#f59e0b;text-shadow:0 2px 10px rgba(0,0,0,0.85),0 0 4px rgba(0,0,0,0.6);line-height:1.35;word-break:break-word}
+#lyricNext{font-size:22px;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,0.8);margin-top:6px;word-break:break-word}
+#lyricNext2{font-size:17px;color:rgba(255,255,255,0.72);text-shadow:0 1px 6px rgba(0,0,0,0.8);margin-top:4px;word-break:break-word}
+#lyricCurrent.lyricAnim{animation:lyricIn 0.4s ease}
+@keyframes lyricIn{from{opacity:0}to{opacity:1}}
 
 .container{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1400px;margin:0 auto}
 header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
@@ -156,7 +158,11 @@ h1{font-size:24px}
   </div>
   <span id="songDur">00:00</span>
 </div>
-<div id="lyricBox"><div id="lyricText"></div></div>
+<div id="lyricBox">
+  <div id="lyricCurrent"></div>
+  <div id="lyricNext"></div>
+  <div id="lyricNext2"></div>
+</div>
 <div class="homePage">
 <header>
 <h1>积分系统</h1>
@@ -702,15 +708,22 @@ function showLyricBox(){ document.getElementById("lyricBox").classList.add("show
 function hideLyricBox(){ document.getElementById("lyricBox").classList.remove("show"); }
 function updateLyric(){
   if(!lyrics.length) return;
-  let cur = "";
-  for(const L of lyrics){ if(L.t <= song.currentTime) cur = L.text; else break; }
-  const el = document.getElementById("lyricText");
-  if(el.textContent !== cur){
-    el.textContent = cur;
-    el.classList.remove("lyricAnim");
-    void el.offsetWidth;
-    el.classList.add("lyricAnim");
+  let idx = -1;
+  for(let i=0;i<lyrics.length;i++){ if(lyrics[i].t <= song.currentTime) idx = i; else break; }
+  const cur = idx >= 0 ? lyrics[idx].text : "";
+  const curEl = document.getElementById("lyricCurrent");
+  if(curEl.textContent !== cur){
+    curEl.textContent = cur;
+    curEl.classList.remove("lyricAnim");
+    void curEl.offsetWidth;
+    curEl.classList.add("lyricAnim");
   }
+  const n1 = idx + 1 < lyrics.length ? lyrics[idx + 1].text : "";
+  const n2 = idx + 2 < lyrics.length ? lyrics[idx + 2].text : "";
+  const n1El = document.getElementById("lyricNext");
+  const n2El = document.getElementById("lyricNext2");
+  if(n1El.textContent !== n1) n1El.textContent = n1;
+  if(n2El.textContent !== n2) n2El.textContent = n2;
 }
 
 // ===== 亮暗主题 =====
