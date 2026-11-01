@@ -150,6 +150,10 @@ h1{font-size:24px}
 .bigFlipCard.flipped .bigFlipCard-front{z-index:1}
 .bigFlipCard.flipped .bigFlipCard-back{z-index:2}
 
+.changelogLink{margin-top:14px;text-align:center;color:#9ca3af;font-size:13px;cursor:pointer;text-decoration:underline}
+.changelogList{padding-left:20px;max-height:320px;overflow-y:auto;line-height:2;font-size:14px;margin:0}
+.changelogList li{margin-bottom:6px}
+#changelogModal .modal{width:540px}
 .footerText{text-align:center;margin-top:30px;color:#666;font-size:15px}
 </style>
 </head>
@@ -240,8 +244,25 @@ h1{font-size:24px}
 <button class="halfBtn btnDanger" onclick="clearAll()">清空全部名单</button>
 </div>
 </div>
+<div class="changelogLink" onclick="openChangelog()">更新日志</div>
+</div>
+</div>
+
+<div class="modalMask" id="changelogModal">
+<div class="modal">
+<h3>更新日志 26.4版本</h3>
+<ol class="changelogList">
+<li>新增名字列表：手动添加、Excel 一键导入、点击加分、悬浮减分、红色垃圾桶删除人员</li>
+<li>新增排行榜：实时排序、反超上下滑动动画、分数变更黄色闪烁</li>
+<li>新增抽选人员：全屏渐出渐入、黑色毛玻璃背景、点击屏幕关闭</li>
+<li>新增抽卡系统：独立页面、翻牌动画、打乱卡片、卡片管理、颜色设置</li>
+<li>新增作业系统：发放作业实时保存、代码折叠与一键复制、关闭作业、网址自动识别跳转、学生端每秒刷新</li>
+<li>新增亮暗主题切换：全局颜色渐变过渡</li>
+<li>新增难忘今宵播放器：2秒起播、全宽进度条（已播橙色）、时间气泡、歌词同步显示</li>
+<li>接入 Cloudflare KV 与 Pages：数据云同步，多端实时一致</li>
+</ol>
 <div class="modalFooter">
-<button class="btnGray" onclick="closeModal()">关闭</button>
+<button class="btnGray" onclick="closeChangelog()">关闭</button>
 </div>
 </div>
 </div>
@@ -622,6 +643,16 @@ function closeModal(){
 }
 document.getElementById("modalMask").onclick = function(e){
   if(e.target === this) closeModal();
+}
+
+function openChangelog(){
+  document.getElementById("changelogModal").style.display="flex";
+}
+function closeChangelog(){
+  document.getElementById("changelogModal").style.display="none";
+}
+document.getElementById("changelogModal").onclick = function(e){
+  if(e.target === this) closeChangelog();
 }
 
 // ===== 难忘今宵 =====
