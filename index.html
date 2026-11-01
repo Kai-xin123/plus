@@ -260,7 +260,7 @@ h1{font-size:24px}
 <ol class="changelogList">
 <li>新增名字列表：手动添加、Excel 一键导入、点击加分、悬浮减分、右上角红色垃圾桶删除（二次确认不可逆）</li>
 <li>新增排行榜：实时排序、反超上下滑动动画、分数变更黄色闪烁</li>
-<li>新增抽选人员：全屏渐出渐入、黑色毛玻璃背景、点击屏幕关闭</li>
+<li>新增抽选人员：全屏渐出渐入、黑色毛玻璃背景、点击屏幕关闭、三次内不重复（3人以下失效）</li>
 <li>新增抽卡系统：独立页面、翻牌动画、打乱卡片、卡片管理、颜色统一设置、刷新默认正面</li>
 <li>新增作业系统：发放作业实时保存、代码折叠与一键复制（✓泡泡提示）、关闭作业、网址自动识别跳转</li>
 <li>新增学生端：标题"学生"、左作业右只读分数榜（KV 实时同步）、作业每秒刷新</li>
@@ -1000,13 +1000,21 @@ function flipCardEffect(cardEl, card, doneCallback){
   },220);
 }
 
+let recentPicks = [];
 document.getElementById("pickBtn").onclick = function(){
   if(people.length === 0){
     alert("暂无人员名单，请先添加！");
     return;
   }
-  const randomIndex = Math.floor(Math.random() * people.length);
-  const selected = people[randomIndex];
+  let pool = people;
+  if(people.length > 3){
+    pool = people.filter(p => !recentPicks.includes(p.name));
+    if(pool.length === 0) pool = people;
+  }
+  const randomIndex = Math.floor(Math.random() * pool.length);
+  const selected = pool[randomIndex];
+  recentPicks.unshift(selected.name);
+  if(recentPicks.length > 3) recentPicks = recentPicks.slice(0, 3);
   document.getElementById("pickResult").textContent = selected.name;
   const sc = document.getElementById("pickScreen");
   sc.style.display="flex";
