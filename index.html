@@ -55,8 +55,7 @@ h1{font-size:24px}
 #songBtn{background:#dc2626;color:white;font-weight:700;}
 .homeworkText{width:100%;min-height:160px;padding:10px;border:1px solid var(--card-border);border-radius:6px;resize:vertical;font-family:inherit;font-size:15px;line-height:1.6;background:var(--input-bg);color:var(--text);transition:background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease}
 .codeToggleBtn{background:#334155;color:white}
-.codeAreaWrap{max-height:0;overflow:hidden;transition:max-height 0.4s ease;margin-top:0}
-.codeAreaWrap.open{max-height:520px;margin-top:8px}
+.codeAreaWrap{margin-top:0}
 .hwToggleBtn{width:100%;padding:10px;border:none;border-radius:8px;cursor:pointer;font-size:16px;color:white;font-weight:600}
 .hwToggleBtn.danger{background:#dc2626}
 .hwToggleBtn.open{background:#16a34a}
@@ -283,8 +282,8 @@ h1{font-size:24px}
 <textarea id="homeworkInput" class="homeworkText" placeholder="输入作业文字，自动实时保存" oninput="autoSaveHomework()"></textarea>
 </div>
 <div class="row">
-<button class="fullBtn codeToggleBtn" onclick="toggleCodeArea()">&lt;/&gt; 代码 <span id="codeAreaArrow">▲</span></button>
-<div id="codeArea" class="codeAreaWrap open">
+<button class="fullBtn codeToggleBtn" onclick="toggleCodeArea()">&lt;/&gt; 代码 <span id="codeAreaArrow">▼</span></button>
+<div id="codeArea" style="display:none;margin-top:8px">
   <textarea id="homeworkCodeInput" class="homeworkText codeInput" placeholder="粘贴/输入要发放的代码" oninput="autoSaveHomework()"></textarea>
 </div>
 </div>
@@ -806,15 +805,9 @@ function toggleTheme(){
 // ===== 发放作业 =====
 function toggleCodeArea(){
   const area = document.getElementById("codeArea");
-  const wasOpen = area.classList.contains("open");
-  if(wasOpen){
-    area.classList.remove("open");
-    area.style.display = "none";
-  }else{
-    area.style.display = "block";
-    area.classList.add("open");
-  }
-  document.getElementById("codeAreaArrow").textContent = wasOpen ? "▼" : "▲";
+  const show = area.style.display !== "block";
+  area.style.display = show ? "block" : "none";
+  document.getElementById("codeAreaArrow").textContent = show ? "▲" : "▼";
 }
 let hwClosed = false;
 function hwInput(){ return document.getElementById("homeworkInput"); }
