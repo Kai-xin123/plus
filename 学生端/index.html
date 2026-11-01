@@ -3,11 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>作业</title>
+<title>学生</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,sans-serif}
 body{background:#f4f7fa;color:#222;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:24px}
-.card{max-width:760px;width:100%;background:#fff;border-radius:16px;box-shadow:0 4px 16px #00000018;padding:36px}
+.card{max-width:1100px;width:100%;background:#fff;border-radius:16px;box-shadow:0 4px 16px #00000018;padding:36px;display:flex;gap:32px}
+.mainCol{flex:1;min-width:0}
+.scoreCol{width:240px;flex-shrink:0;border-left:1px solid #eef2f7;padding-left:24px;max-height:70vh;overflow-y:auto}
+.scoreCol h2{font-size:16px;margin-bottom:12px;color:#0ea5e9}
+.scoreRow{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f1f5f9;font-size:14px}
+.scoreRow .s{color:#2563eb;font-weight:bold}
 h1{font-size:26px;margin-bottom:18px;color:#0ea5e9;border-bottom:2px solid #eef2f7;padding-bottom:12px}
 .homeworkText{font-size:20px;line-height:1.9;white-space:pre-wrap;min-height:60px}
 .homeworkText a{color:#2563eb;text-decoration:underline;cursor:pointer;word-break:break-all}
@@ -18,30 +23,37 @@ h1{font-size:26px;margin-bottom:18px;color:#0ea5e9;border-bottom:2px solid #eef2
 .codeBar .btns{display:flex;gap:8px}
 .codeBar button{background:#475569;color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:13px;min-width:52px;display:flex;align-items:center;justify-content:center}
 .codeBar button:hover{background:#64748b}
-.codeBody{display:none;background:#0f172a;color:#e2e8f0;padding:16px;overflow:auto;max-height:420px}
-.codeBox.open .codeBody{display:block}
+.codeBody{background:#0f172a;color:#e2e8f0;padding:0 16px;overflow:auto;max-height:0;transition:max-height 0.4s ease, padding 0.4s ease;white-space:nowrap}
+.codeBox.open .codeBody{max-height:420px;padding:16px}
 .codeBody pre{font-family:Consolas,Monaco,monospace;font-size:14px;line-height:1.6;white-space:pre}
 .time{margin-top:20px;font-size:13px;color:#999;text-align:right}
 #copyToast{position:fixed;left:50%;top:32%;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:#fff;padding:10px 22px;border-radius:10px;font-size:15px;opacity:0;transition:opacity 0.25s ease;pointer-events:none;z-index:9999;box-shadow:0 4px 14px rgba(0,0,0,0.3)}
 #copyToast.show{opacity:1}
+@media(max-width:760px){.card{flex-direction:column}.scoreCol{width:100%;border-left:none;border-top:1px solid #eef2f7;padding-left:0;padding-top:16px}}
 </style>
 </head>
 <body>
 <div class="card">
-  <h1>作业</h1>
-  <div class="homeworkText" id="homeworkText">加载中…</div>
+  <div class="mainCol">
+    <h1>学生</h1>
+    <div class="homeworkText" id="homeworkText">加载中…</div>
 
-  <div class="codeBox" id="codeBox" style="display:none">
-    <div class="codeBar" onclick="toggleCode()">
-      <span class="left">&lt;/&gt; 代码 <span id="codeArrow">▼</span></span>
-      <span class="btns">
-        <button onclick="event.stopPropagation();copyCode(this)">复制</button>
-      </span>
+    <div class="codeBox open" id="codeBox">
+      <div class="codeBar" onclick="toggleCode()">
+        <span class="left">&lt;/&gt; 代码 <span id="codeArrow">▲</span></span>
+        <span class="btns">
+          <button onclick="event.stopPropagation();copyCode(this)">复制</button>
+        </span>
+      </div>
+      <div class="codeBody"><pre id="codePre"></pre></div>
     </div>
-    <div class="codeBody"><pre id="codePre"></pre></div>
-  </div>
 
-  <div class="time" id="time"></div>
+    <div class="time" id="time"></div>
+  </div>
+  <div class="scoreCol">
+    <h2>分数（只读）</h2>
+    <div id="scoreList"><div style="color:#999;font-size:14px">加载中…</div></div>
+  </div>
 </div>
 <div id="copyToast">代码已复制！</div>
 <script>
@@ -97,6 +109,8 @@ async function loadHomework(){
     if(d.code && d.code.trim()){
       currentCode = d.code;
       box.style.display = "block";
+      box.classList.add("open");
+      document.getElementById("codeArrow").textContent = "▲";
       document.getElementById("codePre").textContent = d.code;
     }else{
       box.style.display = "none";
@@ -107,8 +121,22 @@ async function loadHomework(){
   }
   document.getElementById("time").textContent = "更新于 " + new Date().toLocaleTimeString();
 }
+async function loadScores(){
+  const list = document.getElementById("scoreList");
+  try{
+    const r = await fetch("/api/data");
+    if(!r.ok){ list.innerHTML = '<div style="color:#999;font-size:14px">分数暂不可用</div>'; return; }
+    const d = await r.json();
+    const people = d.people || (Array.isArray(d) ? d : []);
+    if(!people || !people.length){ list.innerHTML = '<div style="color:#999;font-size:14px">暂无人员分数</div>'; return; }
+    const sorted = [...people].sort((a,b)=> b.score - a.score);
+    list.innerHTML = sorted.map((p,i)=>`<div class="scoreRow"><span>${i+1}. ${p.name}</span><span class="s">${p.score}分</span></div>`).join("");
+  }catch(e){ list.innerHTML = '<div style="color:#999;font-size:14px">分数加载失败</div>'; }
+}
 loadHomework();
+loadScores();
 setInterval(loadHomework, 1000);
+setInterval(loadScores, 2000);
 </script>
 </body>
 </html>
