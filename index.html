@@ -74,6 +74,9 @@ h1{font-size:24px}
 .nameCard .scoreBtns{display:flex;align-items:center}
 .nameCard .subBtn{display:none}
 .nameCard:hover .subBtn{display:inline-block}
+.nameCard .delBtn{display:none;background:transparent;color:#ef4444;font-size:13px;padding:2px 4px;line-height:1}
+.nameCard:hover .delBtn{display:inline-block}
+.nameCard .delBtn:hover{background:rgba(239,68,68,0.15)}
 .nameCard .scoreBtns button{padding:4px 12px;border:none;border-radius:5px;cursor:pointer;font-size:12px}
 .btnSub{background:#ef4444;color:white}
 
@@ -441,16 +444,26 @@ function renderNameCards(){
       <span class="nameText">${p.name}</span>
       <span class="scoreText">${p.score}分</span>
       <span class="scoreBtns">
+        <button class="delBtn" onclick="delPerson(${idx})">🗑</button>
         <button class="btnSub subBtn" onclick="subScore(${idx})">-</button>
       </span>
     `;
     div.querySelector('.subBtn').addEventListener('mousedown', e=>e.stopPropagation());
+    div.querySelector('.delBtn').addEventListener('click', e=>e.stopPropagation());
     div.onclick = (e)=>{
-      if(e.target.closest('.subBtn')) return;
+      if(e.target.closest('.subBtn') || e.target.closest('.delBtn')) return;
       addScore(idx);
     };
     wrap.appendChild(div);
   })
+}
+
+function delPerson(personIndex){
+  if(!confirm("是否删除此人员，此操作不可逆！")) return;
+  people.splice(personIndex, 1);
+  saveData();
+  renderNameCards();
+  renderRank();
 }
 
 function addScore(personIndex){
