@@ -67,8 +67,17 @@ function showCopyToast(){
 }
 function toggleCode(){
   const box = document.getElementById("codeBox");
-  box.classList.toggle("open");
-  document.getElementById("codeArrow").textContent = box.classList.contains("open") ? "▲" : "▼";
+  const body = box.querySelector(".codeBody");
+  const wasOpen = box.classList.contains("open");
+  if(wasOpen){
+    box.classList.remove("open");
+    body.style.display = "none";
+    document.getElementById("codeArrow").textContent = "▼";
+  }else{
+    body.style.display = "block";
+    box.classList.add("open");
+    document.getElementById("codeArrow").textContent = "▲";
+  }
 }
 async function copyCode(btn){
   try{
