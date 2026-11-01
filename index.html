@@ -161,6 +161,11 @@ h1{font-size:24px}
 </style>
 </head>
 <body>
+<div id="lockScreen" style="position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px">
+<div style="color:#fff;font-size:22px;font-weight:bold">请输入密码</div>
+<input id="lockInput" type="password" placeholder="密码" style="width:260px;padding:12px 16px;border-radius:10px;border:2px solid #475569;background:#1e293b;color:#fff;font-size:16px;outline:none;text-align:center">
+<div id="lockErr" style="color:#ef4444;font-size:13px;display:none">密码错误</div>
+</div>
 <audio id="song" src="难忘今宵.mp3" preload="auto"></audio>
 <div id="songBar">
   <span id="songTime">00:00</span>
@@ -267,6 +272,7 @@ h1{font-size:24px}
 <li>新增亮暗主题切换：全局颜色渐变过渡</li>
 <li>新增难忘今宵播放器：2秒起播、全宽进度条（已播橙色、方形白色滑块、时间气泡）、右下角歌词同步（当前橙色大字、待唱半透明）</li>
 <li>接入 Cloudflare KV 与 Pages：数据云同步，多端实时一致</li>
+<li>管理员端密码进入（学生端无需密码）</li>
 </ol>
 <div class="changelogFooter">由 <img src="CF.svg" class="cfLogo" alt="Cloudflare"> 提供网站</div>
 <div class="modalFooter">
@@ -345,6 +351,23 @@ h1{font-size:24px}
 <div class="footerText">© Xiaozhu所有</div>
 
 <script>
+(function(){
+  const PWD = "eile";
+  const lock = document.getElementById("lockScreen");
+  const input = document.getElementById("lockInput");
+  const err = document.getElementById("lockErr");
+  function check(){
+    if(input.value === PWD){
+      lock.style.display = "none";
+    }else{
+      err.style.display = "block";
+      input.value = "";
+      input.focus();
+    }
+  }
+  input.addEventListener("keydown", e => { if(e.key === "Enter") check(); });
+  input.focus();
+})();
 let people = [];
 const STORAGE_KEY = "scoreData";
 let prevRankMap = {};
