@@ -806,8 +806,15 @@ function toggleTheme(){
 // ===== 发放作业 =====
 function toggleCodeArea(){
   const area = document.getElementById("codeArea");
-  area.classList.toggle("open");
-  document.getElementById("codeAreaArrow").textContent = area.classList.contains("open") ? "▲" : "▼";
+  const wasOpen = area.classList.contains("open");
+  if(wasOpen){
+    area.classList.remove("open");
+    area.style.display = "none";
+  }else{
+    area.style.display = "block";
+    area.classList.add("open");
+  }
+  document.getElementById("codeAreaArrow").textContent = wasOpen ? "▼" : "▲";
 }
 let hwClosed = false;
 function hwInput(){ return document.getElementById("homeworkInput"); }
