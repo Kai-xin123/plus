@@ -265,7 +265,7 @@ h1{font-size:24px}
 <li>新增名字列表：手动添加、Excel 一键导入、点击加分、悬浮减分、右上角红色垃圾桶删除（二次确认不可逆）</li>
 <li>新增排行榜：实时排序、反超上下滑动动画、分数变更黄色闪烁</li>
 <li>新增抽选人员：全屏渐出渐入、黑色毛玻璃背景、点击屏幕关闭、三次内不重复（3人以下失效）</li>
-<li>新增抽卡系统：独立页面、翻牌动画、卡片管理（可加图片与网站，翻开后自动打开链接）、内容打乱、颜色统一设置、刷新默认正面</li>
+<li>新增抽卡系统：独立页面、翻牌动画、卡片管理（图片可本地文件或 Ctrl+V 粘贴、可加网站，翻开后自动打开链接）、内容打乱、颜色统一设置、刷新默认正面</li>
 <li>新增作业系统：发放作业实时保存、代码折叠与一键复制（✓泡泡提示）、关闭作业、网址自动识别跳转</li>
 <li>新增学生端：标题"学生"、左作业右只读分数榜（KV 实时同步）、作业每秒刷新、代码栏默认展开（点击即时切换、无动画）</li>
 <li>新增亮暗主题切换：全局颜色渐变过渡</li>
@@ -312,11 +312,12 @@ h1{font-size:24px}
 <input id="cardFrontInput" placeholder="序号（自动生成）" disabled>
 <input id="cardBackInput" placeholder="反面揭示文字（可留空）">
 </div>
-<div style="display:flex;gap:8px;margin-bottom:8px">
-<input id="cardImgInput" placeholder="图片网址（可选）" style="flex:1;width:auto;min-width:0" oninput="previewCardImageUrl()">
-<button class="btnGray" style="white-space:nowrap;padding:8px 12px;border:none;border-radius:6px;cursor:pointer;font-size:14px" onclick="document.getElementById('cardImgFile').click()">选图片</button>
+<div style="display:flex;gap:8px;margin-bottom:4px">
+<input id="cardImgInput" placeholder="图片网址，或在弹窗内 Ctrl+V 粘贴图片" style="flex:1;width:auto;min-width:0" oninput="previewCardImageUrl()">
+<button class="btnGray" style="white-space:nowrap;padding:8px 12px;border:none;border-radius:6px;cursor:pointer;font-size:14px" onclick="document.getElementById('cardImgFile').click()">本地文件</button>
 <input type="file" id="cardImgFile" accept="image/*" style="display:none" onchange="pickCardImage(this)">
 </div>
+<div style="font-size:12px;color:#94a3b8;margin-bottom:8px">支持本地图片文件，也可直接粘贴截图（Ctrl+V）</div>
 <div id="cardImgPreviewWrap" style="display:none;align-items:center;gap:8px;margin-bottom:8px">
 <img id="cardImgPreview" style="width:56px;height:56px;object-fit:cover;border-radius:6px;border:1px solid var(--input-border)">
 <button class="btnGray" style="padding:4px 10px;border:none;border-radius:5px;cursor:pointer;font-size:12px" onclick="clearCardImage()">× 清除图片</button>
@@ -977,6 +978,15 @@ function previewCardImageUrl(){
 function pickCardImage(input){
   const file = input.files && input.files[0];
   if(!file) return;
+  processCardImageFile(file);
+  input.value = "";
+}
+
+function processCardImageFile(file){
+  if(!file || !/^image\//i.test(file.type || "")){
+    alert("请选择图片文件");
+    return;
+  }
   const reader = new FileReader();
   reader.onload = function(e){
     const img = new Image();
@@ -995,8 +1005,27 @@ function pickCardImage(input){
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
-  input.value = "";
 }
+
+// 卡片管理弹窗打开时，支持 Ctrl+V 粘贴剪贴板图片
+document.addEventListener("paste", function(e){
+  const mask = document.getElementById("cardManageModalMask");
+  if(!mask || mask.style.display !== "flex") return;
+  const cd = e.clipboardData;
+  if(!cd) return;
+  const items = cd.items || [];
+  for(let i = 0; i < items.length; i++){
+    const it = items[i];
+    if(it.kind === "file" && /^image\//i.test(it.type || "")){
+      const f = it.getAsFile();
+      if(f){
+        e.preventDefault();
+        processCardImageFile(f);
+        return;
+      }
+    }
+  }
+});
 
 function addCard(){
   const backText = document.getElementById("cardBackInput").value.trim();
