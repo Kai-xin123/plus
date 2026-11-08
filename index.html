@@ -63,6 +63,8 @@ h1{font-size:24px}
 #cardManageBtn{background:#db2777;color:white;}
 #shuffleBtn{background:#7c3aed;color:white;}
 #cardColorBtn{background:#f59e0b;color:white;}
+#openAllBtn{background:#0891b2;color:white;}
+#closeAllBtn{background:#64748b;color:white;}
 .backHomeBtn{background:#6b7280;color:white;}
 
 .nameList{display:flex;flex-direction:column;gap:6px}
@@ -210,6 +212,8 @@ h1{font-size:24px}
 <h1>抽卡页面</h1>
 <div class="header-buttons">
 <button id="cardColorBtn" onclick="openCardColor()">🎨 颜色</button>
+<button id="openAllBtn" onclick="openAllCards()">全部打开</button>
+<button id="closeAllBtn" onclick="closeAllCards()">全部关闭</button>
 <button id="shuffleBtn" onclick="shuffleCards(true)">🔀 打乱</button>
 <button id="cardManageBtn">📋 卡片管理</button>
 </div>
@@ -265,7 +269,7 @@ h1{font-size:24px}
 <li>新增名字列表：手动添加、Excel 一键导入、点击加分、悬浮减分、右上角红色垃圾桶删除（二次确认不可逆）</li>
 <li>新增排行榜：实时排序、反超上下滑动动画、分数变更黄色闪烁</li>
 <li>新增抽选人员：全屏渐出渐入、黑色毛玻璃背景、点击屏幕关闭、三次内不重复（3人以下失效）</li>
-<li>新增抽卡系统：独立页面、翻牌动画、卡片管理（图片可本地文件或 Ctrl+V 粘贴、可加网站，翻开后自动打开链接）、内容打乱、颜色统一设置、刷新默认正面</li>
+<li>新增抽卡系统：独立页面、翻牌动画、卡片管理（图片可本地文件或 Ctrl+V 粘贴、可加网站，翻开后自动打开链接）、内容打乱、一键全部翻开/全部关闭、颜色统一设置、刷新默认正面</li>
 <li>新增作业系统：发放作业实时保存、代码折叠与一键复制（✓泡泡提示）、关闭作业、网址自动识别跳转</li>
 <li>新增学生端：标题"学生"、左作业右只读分数榜（KV 实时同步）、作业每秒刷新、代码栏默认展开（点击即时切换、无动画）</li>
 <li>新增亮暗主题切换：全局颜色渐变过渡</li>
@@ -1125,6 +1129,22 @@ function renderCardPageList(){
     `;
     wrap.appendChild(div);
   })
+}
+
+function openAllCards(){
+  if(!cardList.length){ alert("暂无卡片"); return; }
+  cardList.forEach(c => { c.flipped = true; });
+  saveCardData();
+  renderCardPageList();
+  renderCardManageList();
+}
+
+function closeAllCards(){
+  if(!cardList.length){ alert("暂无卡片"); return; }
+  cardList.forEach(c => { c.flipped = false; });
+  saveCardData();
+  renderCardPageList();
+  renderCardManageList();
 }
 
 function shuffleCards(showTip){
