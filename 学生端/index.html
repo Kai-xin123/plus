@@ -15,6 +15,7 @@ body{background:#f4f7fa;color:#222;min-height:100vh;display:flex;align-items:fle
 .scoreRow .s{color:#2563eb;font-weight:bold}
 h1{font-size:26px;margin-bottom:18px;color:#0ea5e9;border-bottom:2px solid #eef2f7;padding-bottom:12px}
 .homeworkText{font-size:20px;line-height:1.9;white-space:pre-wrap;min-height:60px}
+.hwMeta{font-size:13px;color:#94a3b8;margin:6px 0 14px}
 .homeworkText a{color:#2563eb;text-decoration:underline;cursor:pointer;word-break:break-all}
 .empty{color:#999;font-size:18px}
 .codeBox{margin-top:20px;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden}
@@ -36,6 +37,7 @@ h1{font-size:26px;margin-bottom:18px;color:#0ea5e9;border-bottom:2px solid #eef2
   <div class="mainCol">
     <h1>学生</h1>
     <div class="homeworkText" id="homeworkText">加载中…</div>
+    <div class="hwMeta" id="hwMeta"></div>
 
     <div class="codeBox" id="codeBox">
       <div class="codeBar" onclick="toggleCode()">
@@ -95,13 +97,21 @@ function linkify(text){
     return '<a href="' + url.replace(/&/g,"&amp;").replace(/"/g,"&quot;") + '" target="_blank" rel="noopener noreferrer">' + m + '</a>';
   });
 }
+function fmtDateTime(ts){
+  const d = new Date(ts);
+  if(isNaN(d.getTime())) return "";
+  const p = n => String(n).padStart(2, "0");
+  return d.getFullYear() + "-" + p(d.getMonth()+1) + "-" + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes());
+}
 async function loadHomework(){
   const el = document.getElementById("homeworkText");
+  const meta = document.getElementById("hwMeta");
   try{
     const r = await fetch(API_BASE + "/api/homework");
     if(!r.ok){
       el.textContent = "接口错误：/api/homework 返回 " + r.status + "（Functions 未生效或KV异常）";
       el.classList.add("empty");
+      meta.textContent = "";
       return;
     }
     const d = await r.json();
@@ -110,6 +120,7 @@ async function loadHomework(){
     }else{
       el.textContent = "暂无作业"; el.classList.add("empty");
     }
+    meta.textContent = d.updatedAt ? "老师最后更改：" + fmtDateTime(d.updatedAt) : "";
     const box = document.getElementById("codeBox");
     if(d.code && d.code.trim()){
       currentCode = d.code;
@@ -125,6 +136,7 @@ async function loadHomework(){
   }catch(e){
     el.textContent = "接口未生效：无法连接 /api/homework（404，Functions 未上传）";
     el.classList.add("empty");
+    meta.textContent = "";
   }
   document.getElementById("time").textContent = "更新于 " + new Date().toLocaleTimeString();
 }

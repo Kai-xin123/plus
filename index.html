@@ -276,6 +276,8 @@ h1{font-size:24px}
 <li>新增难忘今宵播放器：2秒起播、全宽进度条（已播橙色、橙色圆形滑块（18px、3px 深灰轮廓，按住内芯放大、轮廓收窄）、时间气泡）、右下角歌词同步（当前橙色大字、待唱半透明）</li>
 <li>接入 Cloudflare KV 与 Pages：数据云同步，多端实时一致</li>
 <li>管理员端密码进入（学生端无需密码），白名单 IP 快捷登录免密码</li>
+<li>学生端显示"老师最后更改"作业时间</li>
+<li>学生端打包为桌面 EXE（WebView2 内嵌网页，F5 刷新、F11 全屏）</li>
 </ol>
 <div class="changelogFooter">由 <img src="CF.svg" class="cfLogo" alt="Cloudflare"> 提供网站</div>
 <div class="modalFooter">
@@ -913,7 +915,7 @@ function setHwState(closed){
 document.getElementById("homeworkBtn").onclick = async ()=>{
   document.getElementById("homeworkModalMask").style.display="flex";
   try{
-    const r = await fetch("/api/homework");
+    const r = await fetch(API_BASE + "/api/homework");
     if(r.ok){
       const d = await r.json();
       hwInput().value = d.text || "";
@@ -946,10 +948,10 @@ function autoSaveHomework(){
 }
 async function postHomeworkRaw(text, code){
   try{
-    await fetch("/api/homework",{
+    await fetch(API_BASE + "/api/homework",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({text, code})
+      body: JSON.stringify({text, code, updatedAt: Date.now()})
     });
   }catch(e){ console.warn("作业保存失败"); }
 }
