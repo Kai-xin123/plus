@@ -277,6 +277,7 @@ h1{font-size:24px}
 <li>接入 Cloudflare KV 与 Pages：数据云同步，多端实时一致</li>
 <li>管理员端密码进入（学生端无需密码），白名单 IP 快捷登录免密码</li>
 <li>学生端显示"老师最后更改"作业时间</li>
+<li>加分/减分音效：加分双上扬短音、减分双下挫短音（Web Audio 合成，无音频文件）</li>
 <li>学生端打包为桌面 EXE（WebView2 内嵌网页，F5 刷新、F11 全屏）</li>
 </ol>
 <div class="changelogFooter">由 <img src="CF.svg" class="cfLogo" alt="Cloudflare"> 提供网站</div>
@@ -578,9 +579,28 @@ function delPerson(personIndex){
   renderRank();
 }
 
+function soundPlus(){ beepTone(660,0.07); beepTone(990,0.10,"square",0.07); }
+function soundMinus(){ beepTone(330,0.10,"sawtooth"); beepTone(220,0.13,"sawtooth",0.10); }
+function beepTone(freq, dur, type, delay){
+  try{
+    if(!window.__actx) window.__actx = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = window.__actx;
+    if(ctx.state === "suspended") ctx.resume();
+    const t = ctx.currentTime + (delay||0);
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = type || "square";
+    o.frequency.value = freq;
+    g.gain.setValueAtTime(0.12, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(t); o.stop(t + dur + 0.02);
+  }catch(e){}
+}
 function addScore(personIndex){
   prevRankMap = getRankMap();
   people[personIndex].score +=1;
+  soundPlus();
   const newRankMap = getRankMap();
   saveData();
   renderRankWithAnimation(prevRankMap, newRankMap, people[personIndex].name);
@@ -590,6 +610,7 @@ function addScore(personIndex){
 function subScore(personIndex){
   prevRankMap = getRankMap();
   people[personIndex].score -=1;
+  soundMinus();
   const newRankMap = getRankMap();
   saveData();
   renderRankWithAnimation(prevRankMap, newRankMap, people[personIndex].name);
