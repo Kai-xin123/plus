@@ -59,6 +59,8 @@ h1{font-size:26px;margin-bottom:18px;color:#0ea5e9;border-bottom:2px solid #eef2
 let currentCode = "";
 let toastTimer = null;
 let codeUserToggled = false;
+const ONLINE_BASE = "https://plus-score.pages.dev";
+const API_BASE = (location.protocol === "file:") ? ONLINE_BASE : "";
 function showCopyToast(){
   const t = document.getElementById("copyToast");
   t.classList.add("show");
@@ -96,7 +98,7 @@ function linkify(text){
 async function loadHomework(){
   const el = document.getElementById("homeworkText");
   try{
-    const r = await fetch("/api/homework");
+    const r = await fetch(API_BASE + "/api/homework");
     if(!r.ok){
       el.textContent = "接口错误：/api/homework 返回 " + r.status + "（Functions 未生效或KV异常）";
       el.classList.add("empty");
@@ -129,7 +131,7 @@ async function loadHomework(){
 async function loadScores(){
   const list = document.getElementById("scoreList");
   try{
-    const r = await fetch("/api/data");
+    const r = await fetch(API_BASE + "/api/data");
     if(!r.ok){ list.innerHTML = '<div style="color:#999;font-size:14px">分数暂不可用</div>'; return; }
     const d = await r.json();
     const people = d.people || (Array.isArray(d) ? d : []);

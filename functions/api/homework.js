@@ -2,15 +2,22 @@
 // KV namespace 绑定名：plus，作业单独存在 key "homework"
 
 const KV_KEY = "homework";
+const CORS = {
+  "Content-Type": "application/json; charset=utf-8",
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type"
+};
 
 function json(s, status = 200) {
-  return new Response(s, {
-    status,
-    headers: { "Content-Type": "application/json; charset=utf-8" }
-  });
+  return new Response(s, { status, headers: CORS });
 }
 function err(msg) {
   return json(JSON.stringify({ error: msg }), 500);
+}
+
+export async function onRequestOptions() {
+  return new Response(null, { status: 204, headers: CORS });
 }
 
 export async function onRequestGet(context) {

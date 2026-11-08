@@ -393,8 +393,9 @@ h1{font-size:24px}
   }
   input.addEventListener("keydown", e => { if(e.key === "Enter") checkPwd(); });
 
-  // 先检测 IP 白名单快捷登录
-  fetch("/api/ip")
+  // 先检测 IP 白名单快捷登录（本地用 file:// 打开时查线上接口）
+  const IP_URL = (location.protocol === "file:" ? "https://plus-score.pages.dev" : "") + "/api/ip";
+  fetch(IP_URL)
     .then(r => r.json())
     .then(d => {
       if(d.ip && WHITELIST.includes(d.ip)){
@@ -418,9 +419,19 @@ let cardTheme = {
     border: "#2563eb"
 };
 
-// ===== Cloudflare Pages：同源 /api/data，无需填地址；本地无服务时自动回退本地存储 =====
-const API_BASE = "";
+// ===== Cloudflare Pages：同源 /api/data；本地用 file:// 打开时自动指向线上站点 =====
+const ONLINE_BASE = "https://plus-score.pages.dev";
+const API_BASE = (location.protocol === "file:") ? ONLINE_BASE : "";
 let syncTimer = null;
+function showToast(text){
+  const t = document.getElementById("quickToast");
+  if(!t) return;
+  t.textContent = text;
+  t.style.opacity = "1";
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(()=>{ t.style.opacity = "0"; }, 2000);
+}
+let syncFailCount = 0;
 function scheduleSync(){
   clearTimeout(syncTimer);
   syncTimer = setTimeout(syncKV, 300);
@@ -428,12 +439,21 @@ function scheduleSync(){
 async function syncKV(){
   const payload = {people, cardList, cardTheme, updatedAt: Date.now()};
   try{
-    await fetch(API_BASE + "/api/data", {
+    const r = await fetch(API_BASE + "/api/data", {
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body: JSON.stringify(payload)
     });
-  }catch(e){}
+    if(!r.ok){
+      syncFailCount++;
+      if(syncFailCount === 1) showToast("云端同步失败（HTTP " + r.status + "），已存本地");
+    }else{
+      syncFailCount = 0;
+    }
+  }catch(e){
+    syncFailCount++;
+    if(syncFailCount === 1) showToast("云端同步失败，已存本地");
+  }
 }
 async function loadKV(){
   try{
