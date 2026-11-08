@@ -23,8 +23,7 @@ h1{font-size:26px;margin-bottom:18px;color:#0ea5e9;border-bottom:2px solid #eef2
 .codeBar .btns{display:flex;gap:8px}
 .codeBar button{background:#475569;color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:13px;min-width:52px;display:flex;align-items:center;justify-content:center}
 .codeBar button:hover{background:#64748b}
-.codeBody{display:none;background:#0f172a;color:#e2e8f0;padding:16px;overflow:auto;max-height:420px}
-.codeBox.open .codeBody{display:block}
+.codeBody{background:#0f172a;color:#e2e8f0;padding:16px;overflow:auto;max-height:420px;display:block}
 .codeBody pre{font-family:Consolas,Monaco,monospace;font-size:14px;line-height:1.6;white-space:pre}
 .time{margin-top:20px;font-size:13px;color:#999;text-align:right}
 #copyToast{position:fixed;left:50%;top:32%;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:#fff;padding:10px 22px;border-radius:10px;font-size:15px;opacity:0;transition:opacity 0.25s ease;pointer-events:none;z-index:9999;box-shadow:0 4px 14px rgba(0,0,0,0.3)}
@@ -40,12 +39,12 @@ h1{font-size:26px;margin-bottom:18px;color:#0ea5e9;border-bottom:2px solid #eef2
 
     <div class="codeBox" id="codeBox">
       <div class="codeBar" onclick="toggleCode()">
-        <span class="left">&lt;/&gt; 代码 <span id="codeArrow">▼</span></span>
+        <span class="left">&lt;/&gt; 代码 <span id="codeArrow">▲</span></span>
         <span class="btns">
           <button onclick="event.stopPropagation();copyCode(this)">复制</button>
         </span>
       </div>
-      <div class="codeBody"><pre id="codePre"></pre></div>
+      <div class="codeBody" id="codeBody"><pre id="codePre"></pre></div>
     </div>
 
     <div class="time" id="time"></div>
@@ -59,6 +58,7 @@ h1{font-size:26px;margin-bottom:18px;color:#0ea5e9;border-bottom:2px solid #eef2
 <script>
 let currentCode = "";
 let toastTimer = null;
+let codeUserToggled = false;
 function showCopyToast(){
   const t = document.getElementById("copyToast");
   t.classList.add("show");
@@ -66,9 +66,12 @@ function showCopyToast(){
   toastTimer = setTimeout(()=> t.classList.remove("show"), 1500);
 }
 function toggleCode(){
-  const box = document.getElementById("codeBox");
-  box.classList.toggle("open");
-  document.getElementById("codeArrow").textContent = box.classList.contains("open") ? "▲" : "▼";
+  const body = document.getElementById("codeBody");
+  const arrow = document.getElementById("codeArrow");
+  const open = body.style.display !== "none";
+  body.style.display = open ? "none" : "block";
+  arrow.textContent = open ? "▼" : "▲";
+  codeUserToggled = true;
 }
 async function copyCode(btn){
   try{
@@ -109,9 +112,11 @@ async function loadHomework(){
     if(d.code && d.code.trim()){
       currentCode = d.code;
       box.style.display = "block";
-      box.classList.remove("open");
-      document.getElementById("codeArrow").textContent = "▼";
       document.getElementById("codePre").textContent = d.code;
+      if(!codeUserToggled){
+        document.getElementById("codeBody").style.display = "block";
+        document.getElementById("codeArrow").textContent = "▲";
+      }
     }else{
       box.style.display = "none";
     }
