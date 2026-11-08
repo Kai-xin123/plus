@@ -29,13 +29,11 @@ body{background:var(--bg);color:var(--text);padding:20px;padding-bottom:40px;tra
 #songTip::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#111}
 #songRange{appearance:none;-webkit-appearance:none;background:transparent;cursor:pointer;height:20px;outline:none}
 #songRange::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:linear-gradient(to right,#f59e0b 0%,#f59e0b var(--p,0%),#3f3f46 var(--p,0%),#3f3f46 100%)}
-#songRange::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:2px;background:#fff;border:none;cursor:pointer;margin-top:-6px;transition:transform 0.15s ease}
-#songRange:hover::-webkit-slider-thumb{transform:scale(1.25)}
-#songRange:active::-webkit-slider-thumb{transform:scale(1.6)}
+#songRange::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#f59e0b;border:3px solid #9ca3af;box-sizing:border-box;cursor:pointer;margin-top:-5px;transition:transform 0.15s ease, border-width 0.15s ease}
+#songRange:active::-webkit-slider-thumb{transform:scale(1.35);border-width:2px}
 #songRange::-moz-range-track{height:4px;border-radius:2px;background:linear-gradient(to right,#f59e0b 0%,#f59e0b var(--p,0%),#3f3f46 var(--p,0%),#3f3f46 100%)}
-#songRange::-moz-range-thumb{width:16px;height:16px;border-radius:2px;background:#fff;border:none;cursor:pointer;transition:transform 0.15s ease}
-#songRange:hover::-moz-range-thumb{transform:scale(1.25)}
-#songRange:active::-moz-range-thumb{transform:scale(1.6)}
+#songRange::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#f59e0b;border:3px solid #9ca3af;box-sizing:border-box;cursor:pointer;transition:transform 0.15s ease, border-width 0.15s ease}
+#songRange:active::-moz-range-thumb{transform:scale(1.35);border-width:2px}
 #lyricBox{position:fixed;right:28px;bottom:calc(100vh / 9 + 24px);left:auto;transform:none;opacity:0;transition:opacity 0.5s ease;pointer-events:none;z-index:998;text-align:right;width:min(560px,86vw)}
 #lyricBox.show{opacity:1}
 #lyricCurrent{font-size:34px;font-weight:700;color:#f59e0b;text-shadow:0 2px 10px rgba(0,0,0,0.85),0 0 4px rgba(0,0,0,0.6);line-height:1.35;word-break:break-word}
